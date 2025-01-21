@@ -1,0 +1,34 @@
+{% extends 'main/base.html'%}
+{% block title %}
+{{title_view}}
+{% endblock %}
+{% block content %}
+<main class="flex-shrink-0">
+    <div class="container">
+
+      <ul>
+      {% if bss %}
+        {% for bs in bss %}
+          <li>[#]: {{ bs }}</li>
+        {% endfor %}
+      {% else %}
+          <li>Справочников нет!</li>
+      {% endif %}
+      </ul>
+    </div>
+<!--    <div class="container" style="overflow-x: auto;">-->
+  </main>
+{% endblock %}
+
+{% block li-kmo %}
+text-white
+{% endblock %}
+{% block li-home %}
+text-white
+{% endblock %}
+{% block li-bs %}
+text-secondary
+{% endblock %}
+{% block li-about %}
+text-white
+{% endblock %}
