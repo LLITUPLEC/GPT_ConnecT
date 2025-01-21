@@ -1,0 +1,38 @@
+{% extends "main/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class="container" style="margin-bottom: 150px; margin-top: 20px;">
+         <div class="content-section">
+            <form method="POST">
+                {% csrf_token %}
+                <fieldset class="form-group">
+                    <legend class="border-bottom mb-4">Добро пожаловать на портал ГПТ-КоннекТ</legend>
+                    {{ form|crispy }}
+                </fieldset>
+                <div class="form-group">
+                    <button class="btn btn-outline-info" type="submit">Регистрация</button>
+                </div>
+            </form>
+            <div class="border-top pt-3">
+                <small class="text-muted">
+                    Уже есть аккаунт? <a class="ml-2" href="#">Вход</a>
+                </small>
+            </div>
+         </div>
+    </div>
+
+{% endblock content %}
+
+
+{% block li-kmo %}
+text-white
+{% endblock %}
+{% block li-home %}
+text-white
+{% endblock %}
+{% block li-bs %}
+text-white
+{% endblock %}
+{% block li-about %}
+text-white
+{% endblock %}

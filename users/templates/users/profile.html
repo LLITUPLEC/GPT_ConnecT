@@ -1,0 +1,31 @@
+{% extends "main/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="container" style="margin-bottom: 150px; margin-top: 20px;">
+    <div class="content-section">
+      <div class="media">
+        <img class="rounded-circle account-img" src="{{ user.profile.image.url }}">
+        <div class="media-body">
+          <h2 class="account-heading">{{ user.username }}</h2>
+          <p class="text-secondary">{{ user.email }}</p>
+        </div>
+      </div>
+      <!-- Здесь будет форма -->
+    </div>
+</div>
+
+{% endblock content %}
+
+
+{% block li-kmo %}
+text-white
+{% endblock %}
+{% block li-home %}
+text-white
+{% endblock %}
+{% block li-bs %}
+text-white
+{% endblock %}
+{% block li-about %}
+text-white
+{% endblock %}

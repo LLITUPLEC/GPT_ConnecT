@@ -1,0 +1,24 @@
+{% extends "main/base.html" %}
+{% block content %}
+<div class="container" style="margin-bottom: 150px; margin-top: 20px;">
+    <h2>Вы вышли из своей учетной записи</h2>
+    <div class="border-top pt-3">
+        <small class="text-muted">
+            <a href="{% url 'login' %}">Войти</a>
+        </small>
+    </div>
+</div>
+{% endblock content %}
+
+{% block li-kmo %}
+text-white
+{% endblock %}
+{% block li-home %}
+text-white
+{% endblock %}
+{% block li-bs %}
+text-white
+{% endblock %}
+{% block li-about %}
+text-white
+{% endblock %}
