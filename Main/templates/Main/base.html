@@ -1,0 +1,106 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+      .nav-link.active {
+        background-color: #cfe2ff !important;
+      }
+    </style>
+  </head>
+<!--  <body class="d-flex flex-column h-100" style="overflow-y: scroll;">-->
+  <body data-bs-spy="scroll">
+  <header class="p-3 text-bg-dark" style="background-color: #0a264d !important;">
+      {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert" style="text-align: center;background: #dd0f0fb0; color: wheat; font-weight: 500;">
+                <div class="avatar avatar-xs me-2">
+                    {% if request.user.profile.image.url %}
+                    <img class="avatar-img rounded-circle" src="{{request.user.profile.image.url}}" alt="avatar">
+                    {% else %}
+                    {% endif %}
+                </div>
+                <!-- Info -->
+                {{message}} <a href="#" class="text-reset btn-link mb-0 fw-bold"></a>
+                <button type="button" class="btn-close mt-1" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    <div class="container">
+      <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+<!--        <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">-->
+<!--          <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="http://www.w3.org/2000/svg"></use></svg>-->
+<!--        </a>-->
+
+        <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+          <li><a href="{% url 'home' %}" class="nav-link px-2 text-{% block li-home %}{% endblock %}">Главная</a></li>
+          <li><a href="{% url 'kmo' %}" class="nav-link px-2 {% block li-kmo %}{% endblock %}">КМО</a></li>
+          <li><a href="{% url 'bs' %}" class="nav-link px-2 text-{% block li-bs %}{% endblock %}">Справочники</a></li>
+          <li><a href="{% url 'about' %}" class="nav-link px-2 text-{% block li-about %}{% endblock %}">О проекте</a></li>
+        </ul>
+
+<!--        <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">-->
+<!--          <input type="search" class="form-control form-control-dark text-bg-dark" placeholder="Search..." aria-label="Search">-->
+<!--        </form>-->
+
+        <div class="text-end" style="display: flex;">
+<!--          <a class="btn btn-outline-light me-2" href="% url 'login' %" role="button">Войти</a>-->
+<!--          <button type="button" class="btn btn-outline-light me-2">Войти</button>-->
+<!--          <button type="button" class="btn btn-warning">Регистрация</button>-->
+            {% if user.is_authenticated %}
+            	<a class="btn btn-outline-light me-2" href="{% url 'profile' %}">Профиль</a>
+                <form action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button class="btn btn-warning" type="submit">Выйти</button>
+                </form>
+          	{% else %}
+            	<a class="btn btn-outline-light me-2" href="{% url 'login' %}">Вход</a>
+            	<a class="btn btn-warning" href="{% url 'register' %}">Регистрация</a>
+          	{% endif %}
+        </div>
+      </div>
+    </div>
+  </header>
+  {% block content %}{% endblock %}
+  <footer class="footer fixed-bottom mt-auto py-3 bg-body-tertiary" style="background-color: #0a264d !important;">
+<!--  <footer class="footer mt-auto py-3 bg-body-tertiary" style="background-color: #0a264d !important;">-->
+    <div class="container">
+      <span class="text-white">Developed by Evteev. December 2024</span>
+    </div>
+  </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  <script>
+        let membersForm = document.querySelectorAll(".members-add-form")
+<!--        let container = document.querySelector("#form-container")-->
+        let container = document.querySelector("#nav-memberss")
+        let addButton = document.querySelector("#add-form")
+        let addButton2 = document.querySelector("#add-form2")
+        let totalForms = document.querySelector("#id_form-TOTAL_FORMS")
+
+        let formNum = membersForm.length-1
+
+        addButton.addEventListener('click', addForm)
+        function addForm(e){
+            e.preventDefault()
+
+            let newForm = membersForm[0].cloneNode(true)
+            newForm.style.display = 'table-row';
+            let formRegex = RegExp(`form-(\\d){1}-`,'g')
+
+            formNum++
+            newForm.innerHTML = newForm.innerHTML.replace(formRegex, `form-${formNum}-`)
+            container.insertBefore(newForm, addButton2)
+            const select = document.querySelector(`#id_form-${formNum}-idkmo`).getElementsByTagName('option');
+
+            for (let i = 0; i < select.length; i++) {
+                if (select[i].value === {% block id_kmo_edit %}{% endblock %}) select[i].selected = true;
+            }
+            totalForms.setAttribute('value', `${formNum+1}`)
+        }
+    </script>
+  </body>
+</html>

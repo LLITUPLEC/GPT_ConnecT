@@ -1,0 +1,25 @@
+{% extends 'main/base.html'%}
+{% block title %}
+Страница о нас
+{% endblock %}
+{% block content %}
+<h2>{{ user.get_full_name }}</h2>
+<ul>
+  <li>Имя пользователя: {{ user.username }}</li>
+  <li>Дата рождения: {{ user.profile.d_birthday }}</li>
+  <li>Дата увольнения: {{ user.profile.d_hiring }}</li>
+</ul>
+{% endblock %}
+
+{% block li-kmo %}
+text-white
+{% endblock %}
+{% block li-home %}
+text-white
+{% endblock %}
+{% block li-bs %}
+text-white
+{% endblock %}
+{% block li-about %}
+text-secondary
+{% endblock %}

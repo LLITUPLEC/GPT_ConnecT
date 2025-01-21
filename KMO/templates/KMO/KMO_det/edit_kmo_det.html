@@ -1,0 +1,169 @@
+{% extends 'main/base.html'%}
+{% load static %}
+{% block title %}
+{{title_view}}
+{% endblock %}
+{% block id_kmo_edit %}
+'{{id_kmo_edit}}'
+{% endblock %}
+{% block content %}
+<div class="container" style="margin-bottom: 150px; margin-top: 20px;">
+
+    <h2>Редактирование Неисправности</h2>
+
+
+    <form method="post" style="margin-top: 10px; margin-bottom: 30px" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div style="display: flex; justify-content: space-around;flex-wrap: wrap;">
+            <div class="general_info">
+                <p style="font-size: 24px; text-decoration: underline;">Общие данные</p>
+                <table class="table table-borderless">
+                  <tbody>
+                    <tr class="d-none">
+                      <td >Создатель</td>
+                      <td>{{ edit_kmodet_form.s_update_user }}</td>
+                    </tr>
+                    <tr>
+                      <td >Рег. № КМО</td>
+                      <td>{{header_KMO_data.n_regnumber}}</td>
+                    </tr>
+                    <tr>
+                      <td scope="row">Дата обнаружения</td>
+                      <td>{{ edit_kmodet_form.date_detection }}</td>
+                    </tr>
+                    <tr class="d-none">
+                      <td scope="row">KMO</td>
+                      <td>{{ edit_kmodet_form.idkmo }}</td>
+                    </tr>
+                    <tr>
+                      <td scope="row">Филиал</td>
+                      <td>{{header_KMO_data.iddepowner}}</td>
+                    </tr>
+<!--                    <tr>-->
+<!--                      <td scope="row">Председатель</td>-->
+<!--                      <td>{{ header_KMO_data.idprofile }}</td>-->
+<!--                    </tr>-->
+                    <tr>
+                      <td scope="row">Подразделение</td>
+                      <td>{{ iddepartment }}</td>
+                    </tr>
+                    <tr class="d-none">
+                      <td scope="row">Подразделение</td>
+                      <td>{{ edit_kmodet_form.iddepartment }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <p style="font-size: 24px; text-decoration: underline;">Привязка</p>
+                <table class="table table-borderless">
+                  <tbody>
+                    <tr>
+                      <td scope="row">Станция</td>
+                      <td>{{ edit_kmodet_form.idrwstation }}</td>
+                    </tr>
+                    <tr>
+                      <td scope="row">Перегон</td>
+                      <td>{{ edit_kmodet_form.idrwstage }}</td>
+                    </tr>
+                    <tr>
+                      <td scope="row">Путь</td>
+                      <td>{{ edit_kmodet_form.idrwway }}</td>
+                    </tr>
+                    <tr>
+                      <td scope="row">Стрелочный перевод</td>
+                      <td>{{ edit_kmodet_form.idrwsp }}</td>
+                    </tr>
+                    <tr>
+                      <td scope="row">Километр</td>
+                      <td>{{ edit_kmodet_form.idrwkilometr }}</td>
+                    </tr>
+                  <tr>
+                      <td scope="row">Пикет</td>
+                      <td>{{ edit_kmodet_form.RW_picket }}</td>
+                    </tr>
+                  <tr>
+                      <td scope="row">Звено</td>
+                      <td>{{ edit_kmodet_form.RW_unit }}</td>
+                    </tr>
+                  <tr>
+                      <td scope="row">Нитка</td>
+                      <td>{{ edit_kmodet_form.RW_thread }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+            </div>
+            <div class="defect">
+                <p style="font-size: 24px; text-decoration: underline;">Неисправность</p>
+                <table class="table table-borderless">
+                  <tbody>
+                    <tr>
+                      <td >Обект осмотра</td>
+                      <td>{{ edit_kmodet_form.idBs_Obj_insp }}</td>
+                    </tr>
+                    <tr>
+                      <td scope="row">Элемент</td>
+                      <td>{{ edit_kmodet_form.idBs_RW_element }}</td>
+                    </tr>
+                    <tr>
+                      <td scope="row">Группа неисправности</td>
+                      <td>{{ edit_kmodet_form.idBs_RW_defect_gr }}</td>
+                    </tr>
+                    <tr>
+                      <td scope="row">Неисправность</td>
+                      <td>{{ edit_kmodet_form.idBs_RW_defect_tp }}</td>
+                    </tr>
+                    <tr>
+                      <td scope="row">Срок устранения</td>
+                      <td>{{ edit_kmodet_form.date_elimination }}</td>
+                    </tr>
+                    <tr>
+                      <td scope="row">Срок устранения изменить</td>
+                      <td>{{ edit_kmodet_form.date_elimination_edit }}</td>
+                    </tr>
+                    <tr>
+                      <td scope="row">Величина неисправности</td>
+                      <td>{{ edit_kmodet_form.RW_size_def }}</td>
+                    </tr>
+                  <tr>
+                      <td scope="row">Устранено</td>
+                      <td>{{ edit_kmodet_form.eliminated }}</td>
+                    </tr>
+                  <tr>
+                      <td scope="row">Комментарий</td>
+                      <td>{{ edit_kmodet_form.comment }}</td>
+                    </tr>
+                  <tr>
+                      <td scope="row">Ответственный</td>
+                      <td>{{ edit_kmodet_form.idresponsible }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+            </div>
+            <div class="defect-img" style="margin-bottom: 15px;">
+                <p style="font-size: 24px; text-decoration: underline;">Фотография неисправности</p>
+                <a href="/media/{{ edit_kmodet_form.image_defect.value }}" target="_blank" style="text-decoration: none;">
+                    <img src="/media/{{ edit_kmodet_form.image_defect.value }}" alt="" style="max-width: 320px;">
+                </a>
+                {{ edit_kmodet_form.image_defect }}
+            </div>
+        </div>
+        <button type="submit" class="btn btn-success">Сохранить и выйти</button>
+        <a class="btn btn-danger" href="{% url 'edit_kmo' header_KMO_data.id %}">Отмена</a>
+    </form>
+
+</div>
+{% endblock %}
+
+{% block li-kmo %}
+text-secondary
+{% endblock %}
+{% block li-home %}
+text-white
+{% endblock %}
+{% block li-bs %}
+text-white
+{% endblock %}
+{% block li-about %}
+text-white
+{% endblock %}

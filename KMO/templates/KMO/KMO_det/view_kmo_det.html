@@ -1,0 +1,137 @@
+{% extends 'main/base.html'%}
+{% block title %}
+{{title_view}}
+{% endblock %}
+{% block content %}
+<div class="container" style="margin-bottom: 150px; margin-top: 20px;">
+
+    <h2>Просмотр Акта КМО №{{ view_form.n_regnumber }} от {{ view_form.date_detection }}</h2>
+    <div style="margin-top: 10px; margin-bottom: 30px">
+        <div style="display: flex; justify-content: space-around;flex-wrap: wrap;">
+            <div class="general_info">
+                <p style="font-size: 24px; text-decoration: underline;">Общие данные</p>
+                <table class="table table-borderless">
+                  <tbody>
+                    <tr class="d-none">
+                      <td >Создатель</td>
+                      <td>{{ view_form.s_update_user }}</td>
+                    </tr>
+                    <tr>
+                      <td >Рег. №</td>
+                      <td>{{ view_form.n_regnumber }}</td>
+                    </tr>
+                    <tr>
+                      <td scope="row">Дата обнаружения</td>
+                      <td>{{ view_form.date_detection }}</td>
+                    </tr>
+                    <tr>
+                      <td scope="row">Филиал</td>
+                      <td>{{ view_form.iddepowner }}</td>
+                    </tr>
+<!--                    <tr>-->
+<!--                      <td scope="row">Подразделение</td>-->
+<!--                      <td>{{ view_form.iddepartment }}</td>-->
+<!--                    </tr>-->
+                  </tbody>
+                </table>
+<!--                <p style="font-size: 24px; text-decoration: underline;">Привязка</p>-->
+<!--                <table class="table table-borderless">-->
+<!--                  <tbody>-->
+<!--                    <tr>-->
+<!--                      <td scope="row">Станция</td>-->
+<!--                      <td>{{ view_form.idRWStation }}</td>-->
+<!--                    </tr>-->
+<!--                    <tr>-->
+<!--                      <td scope="row">Перегон</td>-->
+<!--                      <td>{{ view_form.RW_transfer }}</td>-->
+<!--                    </tr>-->
+<!--                    <tr>-->
+<!--                      <td scope="row">Путь</td>-->
+<!--                      <td>{{ view_form.RW_way }}</td>-->
+<!--                    </tr>-->
+<!--                    <tr>-->
+<!--                      <td scope="row">Километр</td>-->
+<!--                      <td>{{ view_form.RW_km }}</td>-->
+<!--                    </tr>-->
+<!--                  <tr>-->
+<!--                      <td scope="row">Пикет</td>-->
+<!--                      <td>{{ view_form.RW_picket }}</td>-->
+<!--                    </tr>-->
+<!--                  <tr>-->
+<!--                      <td scope="row">Звено</td>-->
+<!--                      <td>{{ view_form.RW_unit }}</td>-->
+<!--                    </tr>-->
+<!--                  <tr>-->
+<!--                      <td scope="row">Нитка</td>-->
+<!--                      <td>{{ view_form.RW_thread }}</td>-->
+<!--                    </tr>-->
+<!--                  </tbody>-->
+<!--                </table>-->
+            </div>
+<!--            <div class="defect">-->
+<!--                <p style="font-size: 24px; text-decoration: underline;">Неисправность</p>-->
+<!--                <table class="table table-borderless">-->
+<!--                  <tbody>-->
+<!--                    <tr>-->
+<!--                      <td >Обект осмотра</td>-->
+<!--                      <td>{{ view_form.idBs_Obj_insp }}</td>-->
+<!--                    </tr>-->
+<!--                    <tr>-->
+<!--                      <td scope="row">Элемент</td>-->
+<!--                      <td>{{ view_form.idBs_RW_element }}</td>-->
+<!--                    </tr>-->
+<!--                    <tr>-->
+<!--                      <td scope="row">Группа неисправности</td>-->
+<!--                      <td>{{ view_form.idBs_RW_defect_gr }}</td>-->
+<!--                    </tr>-->
+<!--                    <tr>-->
+<!--                      <td scope="row">Неисправность</td>-->
+<!--                      <td>{{ view_form.idBs_RW_defect_tp }}</td>-->
+<!--                    </tr>-->
+<!--                    <tr>-->
+<!--                      <td scope="row">Ответственный</td>-->
+<!--                      <td>{{ view_form.idprofile }}</td>-->
+<!--                    </tr>-->
+<!--                    <tr>-->
+<!--                      <td scope="row">Срок устранения</td>-->
+<!--                      <td>{{ view_form.date_elimination }}</td>-->
+<!--                    </tr>-->
+<!--                    <tr>-->
+<!--                      <td scope="row">Срок устранения изменить</td>-->
+<!--                      <td>{{ view_form.date_elimination_edit }}</td>-->
+<!--                    </tr>-->
+<!--                  </tbody>-->
+<!--                </table>-->
+
+<!--            </div>-->
+<!--            <div class="defect-img" style="margin-bottom: 15px;">-->
+<!--                <p style="font-size: 24px; text-decoration: underline;">Фотография неисправности</p>-->
+<!--                <p>{{ view_form.image_defect }}</p>-->
+<!--                {% if view_form.image_defect %}-->
+<!--                    <a href="{{ view_form.image_defect.url }}" target="_blank">-->
+<!--                        <img src="{{ view_form.image_defect.url }}" alt="" style="max-width: 320px;">-->
+<!--                        {{ view_form.image_defect }}-->
+<!--                    </a>-->
+<!--                {% endif %}-->
+
+<!--            </div>-->
+        </div>
+        <a class="btn btn-danger" href="{% url 'kmo' %}">Выйти</a>
+        <a class="btn btn-info" href="{% url 'kmo_pdf' view_form.id %}">Сформировать акт в PDF</a>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block li-kmo %}
+text-secondary
+{% endblock %}
+{% block li-home %}
+text-white
+{% endblock %}
+{% block li-bs %}
+text-white
+{% endblock %}
+{% block li-about %}
+text-white
+{% endblock %}
