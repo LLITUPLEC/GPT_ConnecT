@@ -1,5 +1,6 @@
 # GPT_ConnecT
 Digitalization of the GMO creation business process at GAZPROMTRANS railway stations
+#
 Изначальная цель проекта - внедрение цифровых технологий в разные сферы деятельности "ГазпромТранс"
 На данный момент реализовано:
 регистрация, авторизация и аутентификация
