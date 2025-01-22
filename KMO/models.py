@@ -55,6 +55,7 @@ class Kmo(models.Model):
     n_regnumber = models.CharField('Рег. №', max_length=12)
     date_detection = models.DateField('Дата обнаружения')
     idprofile = models.ForeignKey(Profile, on_delete=models.CASCADE, verbose_name='Председатель', null=True)
+    # approved = models.BooleanField('Утверждён', default=False, null=True, blank=True)
 
     def __str__(self):
         return 'КМО Рег. №' + str(self.n_regnumber) + 'от ' + str(self.date_detection) + '(' + str(
@@ -64,6 +65,9 @@ class Kmo(models.Model):
         verbose_name = 'КМО'
         verbose_name_plural = 'Список КМО'
 
+
+def custom_path(obj, name):
+    return 'kmo_imgs/' + str(obj.idkmo.date_detection)[:7] + '/' + str(name)
 
 class Kmodet(models.Model):
     idkmo = models.ForeignKey(Kmo, on_delete=models.CASCADE, verbose_name='КМО')
@@ -94,7 +98,7 @@ class Kmodet(models.Model):
     date_elimination = models.DateField('Срок устранения')
     date_elimination_edit = models.DateField('Срок устранения изменить', null=True, blank=True)
     # image_defect = models.ImageField('Фотография неисправности', blank=True, upload_to='kmo_imgs')
-    image_defect = models.ImageField('Фотография неисправности', blank=True, upload_to=lambda obj, name: 'kmo_imgs/' + str(obj.idkmo.date_detection)[:7] + '/' + str(name))
+    image_defect = models.ImageField('Фотография неисправности', blank=True, upload_to=custom_path)
 
 
     eliminated = models.BooleanField('Устранено', default=False, null=True, blank=True)

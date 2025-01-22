@@ -183,7 +183,7 @@ class KMOdetForm_create(ModelForm):
             'date_elimination_edit': TextInput(attrs={
                 'class': 'form-control', 'placeholder': 'Срок устранения изменить', 'type': 'date'}),
             "RW_size_def": TextInput(attrs={
-                'class': 'form-control',
+                'class': 'form-control', 'type': 'select'
             }),
             "eliminated": CheckboxInput(),
             "comment": Textarea(attrs={
@@ -194,9 +194,6 @@ class KMOdetForm_create(ModelForm):
     RW_picket = ChoiceField(choices=picket_CHOICES, widget=Select(attrs={'class': 'form-control', 'placeholder': 'укажите пикет'}))
     RW_unit = ChoiceField(choices=zveno_CHOICES, widget=Select(attrs={'class': 'form-control', 'placeholder': 'укажите звено'}))
     RW_thread = ChoiceField(choices=thread_CHOICES, widget=Select(attrs={'class': 'form-control', 'placeholder': 'укажите ветку'}))
-    # RW_thread = ChoiceField(choices=thread_CHOICES, widget=RadioSelect)
-    # idkmo = ModelChoiceField(queryset=Kmo.objects.all(),
-    #                                widget=Select(attrs={'class': 'form-select', 'placeholder': 'выберите КМО', 'disabled': 'disabled'}))
     idrwstation = ModelChoiceField(queryset=Bs_RWStation.objects.all(),
                                   widget=Select(attrs={'class': 'form-select', 'placeholder': 'выберите станцию'}))
     idrwstage = ModelChoiceField(queryset=Bs_RWstage.objects.all(),
@@ -271,6 +268,9 @@ class KMOdetForm_edit(ModelForm):
             "iddepartment": TextInput(attrs={
                 'class': 'form-control',
                 'readonly': 'readonly'
+            }),
+            "RW_size_def": TextInput(attrs={
+                'class': 'form-control'
             }),
             "comment": Textarea(attrs={
                 'class': "form-control", 'id': "exampleFormControlTextarea1", 'rows': "3"}),

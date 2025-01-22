@@ -2,8 +2,9 @@
 from datetime import datetime
 from pprint import pprint
 
+from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
-from BS.models import Bs_depowner, Bs_department
+from BS.models import Bs_depowner, Bs_department, Bs_RWway
 from KMO.models import Kmo, Kmo_members, Kmodet
 from KMO.forms import Kmo_membersFormSet, KMOForm_edit, KMO_check_create, KMOdetForm_edit, KMOdetForm_create
 from django.contrib.auth.decorators import login_required
@@ -56,7 +57,9 @@ def kmo(request):
         created_at__year = str(current_datetime.year)
         created_at__month = str(current_datetime.month)
         created_at__hour = str(current_datetime.hour)
-        kmo = Kmo(n_regnumber=created_at__month + '/' + created_at__year + '-' + created_at__hour + '_' + 'A',
+        s_dep_first_letter = Profile.objects.filter(user=request.user).values('iddepartment').first()
+        # print('s_dep_first_letter =>', s_dep_first_letter)
+        kmo = Kmo(n_regnumber=created_at__month + '/' + created_at__year + '-' + created_at__hour + '_' + str(s_dep_first_letter['iddepartment']),
                   date_detection=current_datetime.date())
         check_form_kmo = KMO_check_create(instance=kmo)
 
@@ -296,6 +299,7 @@ def create_kmo_det(request, kmo_id, kmo_det_department):
 
 
             form_create_kmodet = KMOdetForm_edit(instance=kmodet)
+
             context = {
                 'title_view': 'Создать неисправность КМО',
                 'form_create_kmodet': form_create_kmodet,

@@ -4,7 +4,7 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from BS.models import Bs_depowner, Bs_department, Bs_position, Bs_RWStation, Bs_Obj_insp, Bs_RW_element, \
     Bs_RW_defect_gr, Bs_RW_defect_tp, Bs_RWway
-from main.models import Profile
+from Main.models import Profile
 
 
 class Command(BaseCommand):
