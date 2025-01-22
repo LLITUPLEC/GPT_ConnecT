@@ -344,7 +344,13 @@ def edit_kmo_det(request, kmodet_id):
 @login_required()
 def view_kmo_det(request, kmodet_id):
     kmodet = get_object_or_404(Kmodet, id=kmodet_id)
+    kmo_main = Kmodet.objects.filter(id=kmodet_id).values('idkmo').first()
+    depart = kmodet.iddepartment
+    header_KMO_data = Kmo.objects.get(id=kmo_main['idkmo'])
+    content = {'title_view': 'Редактирование неисправности',
+               'view_kmodet': kmodet,
+               'header_KMO_data': header_KMO_data,
+               'iddepartment': depart,
+               }
 
-    content = {'title_view': 'Просмотр', 'view_form': kmodet}
-
-    return render(request, 'KMO/view_kmo.html', context=content)
+    return render(request, 'KMO/KMO_det/view_kmo_det.html', context=content)
