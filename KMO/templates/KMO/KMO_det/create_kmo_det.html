@@ -9,6 +9,7 @@
     <h2>Создание неисправности КМО</h2>
     <form id="form-container" method="post" style="margin-top: 10px; margin-bottom: 30px" enctype="multipart/form-data">
         {% csrf_token %}
+        {{ form_create_kmodet.media.js }}
 <!--        <div style="display: flex; justify-content: space-around;flex-wrap: wrap;">-->
         <div style="display: flex; justify-content: space-around;flex-wrap: wrap;">
             <div class="general_info">

@@ -1,4 +1,5 @@
 {% load static %}
+{{ form.media.js }}
 <!doctype html>
 <html lang="en">
   <head>
@@ -11,6 +12,11 @@
         background-color: #cfe2ff !important;
       }
     </style>
+<!--       <script src="/static/smart-selects/admin/js/chainedfk.js"></script>-->
+       <script src="{% static '/smart-selects/admin/js/chainedfk.js' %} "></script>
+<!--       <script src="{% static 'smart-selects/admin/js/chainedfk.js' %} "></script>-->
+       <script src="{% static 'smart-selects/admin/js/bindfields.js' %} "></script>
+<!--        <script src="/static/smart-selects/admin/js/bindfields.js"></script>-->
   </head>
 <!--  <body class="d-flex flex-column h-100" style="overflow-y: scroll;">-->
   <body data-bs-spy="scroll">

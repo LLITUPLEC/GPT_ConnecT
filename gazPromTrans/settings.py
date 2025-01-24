@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'users',
     'crispy_forms',
     'crispy_bootstrap4',
+    'smart_selects',
 ]
 
 MIDDLEWARE = [
@@ -142,4 +143,7 @@ LOGIN_URL = 'login'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+JQUERY_URL = True
+USE_DJANGO_JQUERY = True
 

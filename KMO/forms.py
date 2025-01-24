@@ -198,7 +198,7 @@ class KMOdetForm_create(ModelForm):
                                   widget=Select(attrs={'class': 'form-select', 'placeholder': 'выберите станцию'}))
     idrwstage = ModelChoiceField(queryset=Bs_RWstage.objects.all(),
                                  widget=Select(attrs={'class': 'form-select', 'placeholder': 'укажите перегон'}),required=False)
-    idrwway = ModelChoiceField(queryset=Bs_RWway.objects.all(),
+    idrwway = ModelChoiceField(queryset=Bs_RWway.objects.select_related('idrwstation'),
                                  widget=Select(attrs={'class': 'form-select', 'placeholder': 'укажите путь'}),required=False)
     idrwsp = ModelChoiceField(queryset=Bs_RWsp.objects.all(),
                                  widget=Select(attrs={'class': 'form-select', 'placeholder': 'укажите стр.перевод'}),required=False)
@@ -221,6 +221,10 @@ class KMOdetForm_create(ModelForm):
 
 
 class KMOdetForm_edit(ModelForm):
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     print('==============================INIT idrwstation =>', self.fields['idrwstation'].queryset)
+    #     self.fields['idrwway'].queryset = Bs_RWway.objects.filter(idrwstation=self.fields['idrwstation'])
     class Meta:
         model = Kmodet
         fields = ["idkmo",
@@ -287,7 +291,7 @@ class KMOdetForm_edit(ModelForm):
                                   widget=Select(attrs={'class': 'form-select', 'placeholder': 'выберите станцию'}))
     idrwstage = ModelChoiceField(queryset=Bs_RWstage.objects.all(),
                                  widget=Select(attrs={'class': 'form-select', 'placeholder': 'укажите перегон'}))
-    idrwway = ModelChoiceField(queryset=Bs_RWway.objects.all(),
+    idrwway = ModelChoiceField(queryset=Bs_RWway.objects.select_related('idrwstation'),
                                  widget=Select(attrs={'class': 'form-select', 'placeholder': 'укажите путь'}))
     idrwsp = ModelChoiceField(queryset=Bs_RWsp.objects.all(),
                                  widget=Select(attrs={'class': 'form-select', 'placeholder': 'укажите стр.перевод'}))
