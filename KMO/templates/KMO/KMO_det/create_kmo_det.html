@@ -5,7 +5,6 @@
 {% endblock %}
 {% block content %}
 <div class="container" style="margin-bottom: 150px; margin-top: 20px;">
-
     <h2>Создание неисправности КМО</h2>
     <form id="form-container" method="post" style="margin-top: 10px; margin-bottom: 30px" enctype="multipart/form-data">
         {% csrf_token %}
@@ -50,6 +49,10 @@
                 <p style="font-size: 24px; text-decoration: underline;">Привязка</p>
                 <table class="table table-borderless">
                   <tbody>
+                    <tr class="d-none">
+                      <td scope="row">Филиал неисправности</td>
+                      <td>{{ form_create_kmodet.iddepowner }}</td>
+                    </tr>
                     <tr>
                       <td scope="row">Станция</td>
                       <td>{{ form_create_kmodet.idrwstation }}</td>

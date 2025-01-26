@@ -9,6 +9,7 @@ urlpatterns = [
     path('', views.index, name='home'),
     path('kmo', views.kmo, name='kmo'),
     path('about', views.about, name='about'),
+    path('zadeploil', views.zadeploil, name='zadeploil'),
     path('bs', views.bs, name='bs'),
     path('create_kmo_det/<int:kmo_id>/<int:kmo_det_department>', views.create_kmo_det, name='create_kmo_det'),
     # path('check_create_kmo', views.check_create_kmo, name='check_create_kmo'),
@@ -24,7 +25,9 @@ urlpatterns = [
     path('view_kmo_det/<int:kmodet_id>', views.view_kmo_det, name='view_kmo_det'),
     path('kmo_pdf/<int:kmo_id>', views.kmo_pdf, name='kmo_pdf'),
     path('delete_members/<int:form_h_id>', views.delete_members, name='delete_members'),
-
+    path('done_kmo_det/<int:kmodet_id>', views.done_kmo_det, name='done_kmo_det'),
+    path('view_kmodet_by_qr/<str:type_obj>/<int:id_obj>', views.view_kmodet_by_qr, name='view_kmodet_by_qr'),
+    path('qr/', views.index_qr, name='qr-generator'),
 
 ]
 

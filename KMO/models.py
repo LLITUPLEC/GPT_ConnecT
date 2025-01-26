@@ -26,8 +26,8 @@ zveno_CHOICES = (
     ('4', '4'),
 )
 thread_CHOICES = (
-    ('r', 'правая'),
-    ('l', 'левая'),
+    ('правая', 'правая'),
+    ('правая', 'левая'),
 )
 
 
@@ -61,8 +61,9 @@ class Kmo(models.Model):
     # approved = models.BooleanField('Утверждён', default=False, null=True, blank=True)
 
     def __str__(self):
-        return 'КМО Рег. №' + str(self.n_regnumber) + 'от ' + str(self.date_detection) + '(' + str(
-            self.iddepowner) + ') [' + str(self.created_at) + ']'
+        return ('КМО Рег. №' + str(self.n_regnumber) + ' от ' + str(self.date_detection)
+               # + '(' + str(self.iddepowner) + ') [' + str(self.created_at) + ']'
+                )
 
     class Meta:
         verbose_name = 'КМО'
@@ -75,6 +76,7 @@ def custom_path(obj, name):
 
 class Kmodet(models.Model):
     idkmo = models.ForeignKey(Kmo, on_delete=models.CASCADE, verbose_name='КМО')
+    iddepowner = models.ForeignKey(Bs_depowner, on_delete=models.CASCADE, verbose_name='Филиал', null=True, blank=True)
     created_at = models.DateTimeField('Дата создания', auto_now_add=True, editable=False)
     user_creator = models.CharField('Создатель', max_length=50, null=True, blank=True)
     s_update_user = models.CharField('Изменивший', max_length=50, null=True, blank=True)
@@ -94,12 +96,17 @@ class Kmodet(models.Model):
                                 sort=True)
     idrwkilometr = models.ForeignKey(Bs_RWkilometr, on_delete=models.CASCADE, verbose_name='км', null=True, blank=True,
                                      default=None)
-    idrwsp = models.ForeignKey(Bs_RWsp, on_delete=models.CASCADE, verbose_name='Стрелочный перевод', null=True,
-                               blank=True, default=None)
+    # idrwsp = models.ForeignKey(Bs_RWsp, on_delete=models.CASCADE, verbose_name='Стрелочный перевод', null=True,
+    #                            blank=True, default=None)
+    idrwsp = ChainedForeignKey(Bs_RWsp, chained_field="idrwstation",
+                                chained_model_field="idrwstation",
+                                show_all=False,
+                                auto_choose=True,
+                                sort=True)
 
     RW_picket = models.CharField(max_length=2, choices=picket_CHOICES, verbose_name='пикет')
     RW_unit = models.CharField('Звено', choices=zveno_CHOICES, max_length=2)
-    RW_thread = models.CharField('Нитка', choices=thread_CHOICES, max_length=2)
+    RW_thread = models.CharField('Нитка', choices=thread_CHOICES, max_length=6)
 
     idBs_Obj_insp = models.ForeignKey(Bs_Obj_insp, on_delete=models.CASCADE, verbose_name='Объект осмотра')
     idBs_RW_element = models.ForeignKey(Bs_RW_element, on_delete=models.CASCADE, verbose_name='Элемент осмотра')
