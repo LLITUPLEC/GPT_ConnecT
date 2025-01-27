@@ -112,55 +112,17 @@ def bs(request):
 #     #     return HttpResponseRedirect('/kmo')
 
 
-# @login_required
-# def create_kmo(request):
-#     # if request.user.groups.filter(name='worker_view').count():
-#         error = ''
-#         if request.method == 'POST':
-#
-#             form_kmo = KMOForm(request.POST, request.FILES)
-#             form_members = BirdFormSet(request.POST)
-#             # form.instance.user_creator = request.user.username
-#
-#             if form_kmo.is_valid() and form_members.is_valid():
-#
-#                 form_kmo.instance.user_creator = request.user.username
-#                 form_kmo.save()
-#                 form_members.save()
-#                 return redirect('kmo')
-#             else:
-#                 error = 'Форма ошибочна \n' + str(form_kmo.errors)
-#         else:
-#             try:
-#                 list_kmo_id = Kmo.objects.last().id
-#             except:
-#                 list_kmo_id = '1'
-#             kmo = Kmo(n_regnumber=list_kmo_id)
-#             form_kmo = KMOForm(instance=kmo)
-#             form_members = BirdFormSet(queryset=Bird.objects.none())
-#             context = {
-#                 'title_view': 'Создать Акт КМО',
-#                 'form_kmo': form_kmo,
-#                 'form_members': form_members,
-#                 'error': error,
-#             }
-#             return render(request, 'KMO/create_kmo.html', context)
-#     # else:
-#     #     messages.info(request, 'Ваших прав недостаточно! Обратитесь к администратору')
-#     #     return HttpResponseRedirect('/kmo')
 
 
 @login_required()
 def delete(request, kmo_id):
-    # if request.user.groups.filter(name='worker_view').count():
-    kmo = get_object_or_404(Kmo, id=kmo_id)
-    kmo.delete()
-    return redirect('/kmo')
-
-
-# else:
-#     messages.info(request, 'Ваших прав недостаточно! Обратитесь к администратору')
-#     return HttpResponseRedirect('/kmo')
+    if request.user.groups.filter(name='delete_kmo').count():
+        kmo = get_object_or_404(Kmo, id=kmo_id)
+        kmo.delete()
+        return redirect('/kmo')
+    else:
+        messages.info(request, 'Ваших прав недостаточно! Обратитесь к администратору')
+        return HttpResponseRedirect('/kmo')
 
 @login_required()
 def delete_members(request, form_h_id):
@@ -177,8 +139,8 @@ def delete_members(request, form_h_id):
 @login_required()
 def edit_kmo(request, kmo_id):
     kmo = get_object_or_404(Kmo, id=kmo_id)
-    # kmo_members = get_object_or_404(Kmo_members, idkmo=kmo_id)
-
+    if kmo.approved:
+        return redirect(f'/view_kmo/{kmo_id}')
     if request.method == 'POST':
         # print('}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}11111111111111111')
         edit_form = KMOForm_edit(request.POST, instance=kmo)
@@ -263,6 +225,20 @@ def view_kmo(request, kmo_id):
     return render(request, 'KMO/view_kmo.html', context=content)
 
 
+@login_required()
+def approv_kmo(request, kmo_id):
+    kmo = get_object_or_404(Kmo, id=kmo_id)
+    if request.user == kmo.idprofile.user:
+        kmo.approved = 1
+        kmo.save()
+        return redirect(f'/view_kmo/{kmo_id}')
+    else:
+        messages.info(request, 'Утверждение невозможно! Только председатель данного КМО имеет на это право')
+        return HttpResponseRedirect(f'/edit_kmo/{kmo_id}')
+
+
+    # return render(request, 'KMO/view_kmo.html')
+
 def kmo_pdf(request, kmo_id):
     buf = io.BytesIO()
     c = canvas.Canvas(buf, pagesize=letter, bottomup=0)
@@ -289,20 +265,26 @@ def kmo_pdf(request, kmo_id):
 #  ПОЗИЦИИ КМО ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 @login_required()
 def delete_kmo_det(request, kmodet_id):
-    # if request.user.groups.filter(name='worker_view').count():
-    kmodet = get_object_or_404(Kmodet, id=kmodet_id)
-    kmodet.delete()
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+    if request.user.groups.filter(name='delete_kmodet').count():
+        kmodet = get_object_or_404(Kmodet, id=kmodet_id)
+        if kmodet.idkmo.approved:
+            messages.info(request, 'Удаление невозможно, КМО утверждён председателем!')
+            return HttpResponseRedirect(f'/view_kmo/{kmodet.idkmo.pk}')
+        kmodet.delete()
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 
-# else:
-#     messages.info(request, 'Ваших прав недостаточно! Обратитесь к администратору')
-#     return HttpResponseRedirect('/kmo')
+    else:
+        messages.info(request, 'Ваших прав недостаточно! Обратитесь к администратору')
+        return HttpResponseRedirect('/kmo')
 
 
 @login_required()
 def create_kmo_det(request, kmo_id, kmo_det_department):
     # if request.user.groups.filter(name='worker_view').count():
+    idKMO = Kmo.objects.get(id=kmo_id)
+    if idKMO.approved:
+        return HttpResponseRedirect(f'/view_kmo/{kmo_id}')
     error = ''
     if request.method == 'POST':
         print('=========== POST =============')
@@ -316,7 +298,6 @@ def create_kmo_det(request, kmo_id, kmo_det_department):
         else:
             error = 'Форма ошибочна \n' + str(form_create_kmodet.errors)
     else:
-        idKMO = Kmo.objects.get(id=kmo_id)
         idDepartment = Bs_department.objects.get(id=kmo_det_department)
         idDepowner_row = Kmo.objects.filter(id=kmo_id).values('iddepowner').first()
         idDepowner = Bs_depowner.objects.get(id=idDepowner_row['iddepowner'])
@@ -341,8 +322,9 @@ def create_kmo_det(request, kmo_id, kmo_det_department):
 
 @login_required()
 def edit_kmo_det(request, kmodet_id):
-    # return None  #redirect(request.META.get('HTTP_REFERER', 'redirect_if_referer_not_found'))
     kmodet = get_object_or_404(Kmodet, id=kmodet_id)
+    if kmodet.idkmo.approved:
+        return HttpResponseRedirect(f'/view_kmo_det/{kmodet_id}')
     kmo_main = Kmodet.objects.filter(id=kmodet_id).values('idkmo').first()
     print('=====================================', kmo_main)
     if request.method == 'POST':
@@ -394,10 +376,17 @@ def view_kmo_det(request, kmodet_id):
 def done_kmo_det(request, kmodet_id):
     # if request.user.groups.filter(name='worker_view').count():
     kmodet = get_object_or_404(Kmodet, id=kmodet_id)
-    kmodet.eliminated = True
-    kmodet.save()
-    # return JsonResponse({"result": True})
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+    if kmodet.idkmo.approved is False:
+        messages.info(request, 'ОШИБКА! Устранять неисправности можно только ПОСЛЕ утверждения КМО')
+        return HttpResponseRedirect(f'/view_kmo/{kmodet.idkmo.pk}')
+    if request.user == kmodet.idresponsible.idprofile.user:
+        kmodet.eliminated = True
+        kmodet.save()
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+    else:
+        messages.info(request, 'ОШИБКА! Признак устранения может ставить Пользователь, '
+                               'указанный в графе "Ответственный за устранение"')
+        return HttpResponseRedirect(f'/view_kmo/{kmodet.idkmo.pk}')
 
 
 def index_qr(request):
@@ -431,21 +420,4 @@ def view_kmodet_by_qr(request, type_obj, id_obj):
                                                                   'name_obj': name_obj}
                   )
 
-    # idKMO = Kmo.objects.get(id=kmo_id)
-    # idDepartment = Bs_department.objects.get(id=kmo_det_department)
-    # idDepowner_row = Kmo.objects.filter(id=kmo_id).values('iddepowner').first()
-    # idDepowner = Bs_depowner.objects.get(id=idDepowner_row['iddepowner'])
-    # kmodet = Kmodet(idkmo=idKMO, iddepartment=idDepartment, date_detection=datetime.now().date(),
-    #                 user_creator=request.user.username, iddepowner=idDepowner)
-    #
-    # form_create_kmodet = KMOdetForm_create(instance=kmodet)
-    #
-    # context = {
-    #     'title_view': 'Создать неисправность КМО',
-    #     'form_create_kmodet': form_create_kmodet,
-    #     'header_KMO_data': idKMO,
-    #     'idDepartment': idDepartment,
-    #     'error': error,
-    # }
-    # return render(request, 'KMO/KMO_det/create_kmo_det.html', context)
 

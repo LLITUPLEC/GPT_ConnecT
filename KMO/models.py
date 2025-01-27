@@ -58,7 +58,7 @@ class Kmo(models.Model):
     date_detection = models.DateField('Дата обнаружения')
     idprofile = models.ForeignKey(Profile, on_delete=models.CASCADE, verbose_name='Председатель', null=True)
 
-    # approved = models.BooleanField('Утверждён', default=False, null=True, blank=True)
+    approved = models.BooleanField('Утверждён', default=False, null=True, blank=True)
 
     def __str__(self):
         return ('КМО Рег. №' + str(self.n_regnumber) + ' от ' + str(self.date_detection)

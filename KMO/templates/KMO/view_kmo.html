@@ -5,10 +5,13 @@
 {% endblock %}
 {% block content %}
 <div class="container" style="margin-bottom: 150px; margin-top: 20px;">
-<!--    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="-->
-<!--    crossorigin="anonymous"></script>-->
 
     <h2>Просмотр Акта КМО №{{ view_form.n_regnumber }} от {{ view_form.date_detection }}</h2>
+    {% if kmo_data.approved %}
+    <h5 style="color: green; background: greenyellow;">КМО утверждён</h5>
+    {% else %}
+    <h5 style="color: #2041e5cc; background: #249ce35e;">КМО оформляется</h5>
+    {% endif%}
     <div style="margin-top: 10px; margin-bottom: 30px">
         <div style="display: flex; justify-content: space-around;flex-wrap: wrap;">
             <div class="general_info" style="display: flex; justify-content: space-around; width: 100%; flex-wrap: wrap;">
@@ -34,7 +37,7 @@
                         </tr>
                         <tr>
                           <td scope="row">Председатель</td>
-                          <td>{{ kmo_data.idprofile }}</td>
+                          <td><b>{{ kmo_data.idprofile }}</b></td>
                         </tr>
                       </tbody>
                     </table>
@@ -121,15 +124,10 @@
                                     <th scope="row">
                                         <div class="btn-group">
                                             <a class="btn btn-sm btn-outline-secondary" href="{% url 'view_kmo_det' kmodet_sp.id %}"><img src="{% static 'icons/view_2.svg' %}" style="width: 16px"></a>
-                                            {% if kmodet_sp.eliminated == 0 %}
+                                            {% if kmodet_sp.eliminated == 0 and kmodet_sp.idkmo.approved %}
                                             <a class="btn btn-sm btn-outline-secondary" href="{% url 'done_kmo_det' kmodet_sp.id  %}"><img src="{% static 'icons/done.svg' %}" style="width: 16px"></a>
                                             {% endif %}
-<!--                                            <form id="sp_{{kmodet_sp.id}}">-->
-<!--                                                {% csrf_token %}-->
-<!--                                                <input type="submit" value="Заказать звонок" />-->
-<!--                                            </form>-->
                                         </div>
-<!--                                        <p id="result">{{kmodet_sp.eliminated}}</p>-->
 
                                     </th>
                                     <td>{{kmodet_sp.date_detection}}</td>
@@ -158,7 +156,12 @@
             </div>
         </div>
         <a class="btn btn-danger" href="{% url 'kmo' %}">Выйти</a>
-        <a class="btn btn-info" href="{% url 'kmo_pdf' id_kmo_edit %}">Сформировать акт в PDF</a>
+        {% if kmo_data.approved == 0 %}
+            <a class="btn btn-warning" href="{% url 'approv_kmo' id_kmo_edit %}">Утвердить</a>
+        {% else %}
+            <a class="btn btn-info" href="{% url 'kmo_pdf' id_kmo_edit %}">Сформировать акт в PDF</a>
+        {% endif %}
+
     </div>
 
 </div>

@@ -258,7 +258,7 @@ class KMOdetForm_create(ModelForm):
                   "date_elimination",
                   "date_elimination_edit",
                   "image_defect",
-                  "eliminated",
+                  # "eliminated",
                   "comment",
                   "idresponsible",
                   ]
@@ -288,7 +288,7 @@ class KMOdetForm_create(ModelForm):
             }),
             "comment": Textarea(attrs={
                 'class': "form-control", 'id': "exampleFormControlTextarea1", 'rows': "3"}),
-            "eliminated": CheckboxInput(),
+            # "eliminated": CheckboxInput(),
 
         }
 

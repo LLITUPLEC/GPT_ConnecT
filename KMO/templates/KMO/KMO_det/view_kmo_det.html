@@ -11,9 +11,6 @@
 
     <h2>Просмотр Неисправности</h2>
 
-
-    <form method="post" style="margin-top: 10px; margin-bottom: 30px" enctype="multipart/form-data">
-        {% csrf_token %}
         <div style="display: flex; justify-content: space-around;flex-wrap: wrap;">
             <div class="general_info">
                 <p style="font-size: 24px; text-decoration: underline;">Общие данные</p>
@@ -39,10 +36,6 @@
                       <td scope="row">Филиал</td>
                       <td>{{header_KMO_data.iddepowner}}</td>
                     </tr>
-<!--                    <tr>-->
-<!--                      <td scope="row">Председатель</td>-->
-<!--                      <td>{{ header_KMO_data.idprofile }}</td>-->
-<!--                    </tr>-->
                     <tr>
                       <td scope="row">Подразделение</td>
                       <td>{{ iddepartment }}</td>
@@ -126,7 +119,7 @@
                     </tr>
                   <tr>
                       <td scope="row">Устранено</td>
-                      <td>{{ view_kmodet.eliminated }}</td>
+                      <td>{% if view_kmodet.eliminated %}ДА{% else %}НЕТ{% endif %}</td>
                     </tr>
                   <tr>
                       <td scope="row">Комментарий</td>
@@ -148,9 +141,7 @@
 <!--                {{ view_kmodet.image_defect }}-->
             </div>
         </div>
-        <button type="submit" class="btn btn-success">Сохранить и выйти</button>
-        <a class="btn btn-danger" href="{% url 'edit_kmo' header_KMO_data.id %}">Отмена</a>
-    </form>
+        <a class="btn btn-info" href="{% url 'view_kmo' header_KMO_data.id %}">Назад</a>
 
 </div>
 {% endblock %}

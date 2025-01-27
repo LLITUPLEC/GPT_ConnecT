@@ -28,6 +28,7 @@ urlpatterns = [
     path('done_kmo_det/<int:kmodet_id>', views.done_kmo_det, name='done_kmo_det'),
     path('view_kmodet_by_qr/<str:type_obj>/<int:id_obj>', views.view_kmodet_by_qr, name='view_kmodet_by_qr'),
     path('qr/', views.index_qr, name='qr-generator'),
+    path('approv_kmo/<int:kmo_id>', views.approv_kmo, name='approv_kmo'),
 
 ]
 
