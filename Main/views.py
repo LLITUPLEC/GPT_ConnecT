@@ -2,12 +2,13 @@
 from datetime import datetime
 from pprint import pprint
 
+from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
-from BS.models import Bs_depowner, Bs_department
+from BS.models import Bs_depowner, Bs_department, Bs_RWway
 from KMO.models import Kmo, Kmo_members, Kmodet
 from KMO.forms import Kmo_membersFormSet, KMOForm_edit, KMO_check_create, KMOdetForm_edit, KMOdetForm_create
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect, FileResponse
+from django.http import HttpResponseRedirect, FileResponse, JsonResponse
 from django.contrib import messages
 from django.urls import reverse_lazy
 
@@ -18,9 +19,8 @@ from reportlab.lib.pagesizes import letter
 
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from django.views.generic import ListView, TemplateView
-
 from Main.models import Profile
+from qrcode import make as make_qr
 
 pdfmetrics.registerFont(TTFont('DejaVuSerif', 'static/DejaVuSerif.ttf', 'UTF-8'))
 
@@ -56,7 +56,10 @@ def kmo(request):
         created_at__year = str(current_datetime.year)
         created_at__month = str(current_datetime.month)
         created_at__hour = str(current_datetime.hour)
-        kmo = Kmo(n_regnumber=created_at__month + '/' + created_at__year + '-' + created_at__hour + '_' + 'A',
+        s_dep_first_letter = Profile.objects.filter(user=request.user).values('iddepartment').first()
+        # print('s_dep_first_letter =>', s_dep_first_letter)
+        kmo = Kmo(n_regnumber=created_at__month + '/' + created_at__year + '-' + created_at__hour + '_' + str(
+            s_dep_first_letter['iddepartment']),
                   date_detection=current_datetime.date())
         check_form_kmo = KMO_check_create(instance=kmo)
 
@@ -109,55 +112,17 @@ def bs(request):
 #     #     return HttpResponseRedirect('/kmo')
 
 
-# @login_required
-# def create_kmo(request):
-#     # if request.user.groups.filter(name='worker_view').count():
-#         error = ''
-#         if request.method == 'POST':
-#
-#             form_kmo = KMOForm(request.POST, request.FILES)
-#             form_members = BirdFormSet(request.POST)
-#             # form.instance.user_creator = request.user.username
-#
-#             if form_kmo.is_valid() and form_members.is_valid():
-#
-#                 form_kmo.instance.user_creator = request.user.username
-#                 form_kmo.save()
-#                 form_members.save()
-#                 return redirect('kmo')
-#             else:
-#                 error = 'Форма ошибочна \n' + str(form_kmo.errors)
-#         else:
-#             try:
-#                 list_kmo_id = Kmo.objects.last().id
-#             except:
-#                 list_kmo_id = '1'
-#             kmo = Kmo(n_regnumber=list_kmo_id)
-#             form_kmo = KMOForm(instance=kmo)
-#             form_members = BirdFormSet(queryset=Bird.objects.none())
-#             context = {
-#                 'title_view': 'Создать Акт КМО',
-#                 'form_kmo': form_kmo,
-#                 'form_members': form_members,
-#                 'error': error,
-#             }
-#             return render(request, 'KMO/create_kmo.html', context)
-#     # else:
-#     #     messages.info(request, 'Ваших прав недостаточно! Обратитесь к администратору')
-#     #     return HttpResponseRedirect('/kmo')
 
 
 @login_required()
 def delete(request, kmo_id):
-    # if request.user.groups.filter(name='worker_view').count():
-    kmo = get_object_or_404(Kmo, id=kmo_id)
-    kmo.delete()
-    return redirect('/kmo')
-
-
-# else:
-#     messages.info(request, 'Ваших прав недостаточно! Обратитесь к администратору')
-#     return HttpResponseRedirect('/kmo')
+    if request.user.groups.filter(name='delete_kmo').count():
+        kmo = get_object_or_404(Kmo, id=kmo_id)
+        kmo.delete()
+        return redirect('/kmo')
+    else:
+        messages.info(request, 'Ваших прав недостаточно! Обратитесь к администратору')
+        return HttpResponseRedirect('/kmo')
 
 @login_required()
 def delete_members(request, form_h_id):
@@ -174,9 +139,8 @@ def delete_members(request, form_h_id):
 @login_required()
 def edit_kmo(request, kmo_id):
     kmo = get_object_or_404(Kmo, id=kmo_id)
-    print('````````````````````````````kmo date_detection ', kmo.date_detection, '````````````````````````````')
-    # kmo_members = get_object_or_404(Kmo_members, idkmo=kmo_id)
-
+    if kmo.approved:
+        return redirect(f'/view_kmo/{kmo_id}')
     if request.method == 'POST':
         # print('}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}11111111111111111')
         edit_form = KMOForm_edit(request.POST, instance=kmo)
@@ -210,7 +174,8 @@ def edit_kmo(request, kmo_id):
 
         data_kmodet_sp = Kmodet.objects.filter(idkmo=kmo_id, iddepartment=Bs_department.objects.get(s_name='СП'))
         data_kmodet_count_all = Kmodet.objects.filter(idkmo=kmo_id).count()
-        data_kmodet_count_overdue = Kmodet.objects.filter(idkmo=kmo_id, date_elimination__lt=datetime.now().date(), eliminated=0).count()
+        data_kmodet_count_overdue = Kmodet.objects.filter(idkmo=kmo_id, date_elimination__lt=datetime.now().date(),
+                                                          eliminated=0).count()
         data_kmodet_count_active = Kmodet.objects.filter(idkmo=kmo_id, eliminated=0).count()
         content = {'title_view': 'Редактирование',
                    'edit_form': edit_form,
@@ -233,11 +198,46 @@ def edit_kmo(request, kmo_id):
 @login_required()
 def view_kmo(request, kmo_id):
     kmo = get_object_or_404(Kmo, id=kmo_id)
+    view_form = KMOForm_edit(instance=kmo)
+    form_members = Kmo_members.objects.filter(idkmo=kmo_id)
+    kmo_data = Kmo.objects.get(id=kmo_id)
+    data_kmodet_sp = Kmodet.objects.filter(idkmo=kmo_id, iddepartment=Bs_department.objects.get(s_name='СП'))
+    data_kmodet_count_all = Kmodet.objects.filter(idkmo=kmo_id).count()
+    data_kmodet_count_overdue = Kmodet.objects.filter(idkmo=kmo_id, date_elimination__lt=datetime.now().date(),
+                                                      eliminated=0).count()
+    data_kmodet_count_active = Kmodet.objects.filter(idkmo=kmo_id, eliminated=0).count()
 
-    content = {'title_view': 'Просмотр КМО', 'view_form': kmo}
+    content = {'title_view': 'Просмотр КМО',
+               # 'view_form': view_form,
+               'view_form': kmo,
+               'kmo_data': kmo_data,
+               'form_members': form_members,
+               'id_kmo_edit': kmo_id,
+               'data_kmodet_sp': data_kmodet_sp,
+               'data_kmodet_all': {
+                   'kmodet_all_count': data_kmodet_count_all,
+                   'kmodet_count_overdue': data_kmodet_count_overdue,
+                   'kmodet_count_active': data_kmodet_count_active,
+                   'datenow': datetime.now().date()
+               }
+               }
 
     return render(request, 'KMO/view_kmo.html', context=content)
 
+
+@login_required()
+def approv_kmo(request, kmo_id):
+    kmo = get_object_or_404(Kmo, id=kmo_id)
+    if request.user == kmo.idprofile.user:
+        kmo.approved = 1
+        kmo.save()
+        return redirect(f'/view_kmo/{kmo_id}')
+    else:
+        messages.info(request, 'Утверждение невозможно! Только председатель данного КМО имеет на это право')
+        return HttpResponseRedirect(f'/edit_kmo/{kmo_id}')
+
+
+    # return render(request, 'KMO/view_kmo.html')
 
 def kmo_pdf(request, kmo_id):
     buf = io.BytesIO()
@@ -265,70 +265,81 @@ def kmo_pdf(request, kmo_id):
 #  ПОЗИЦИИ КМО ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 @login_required()
 def delete_kmo_det(request, kmodet_id):
+    if request.user.groups.filter(name='delete_kmodet').count():
+        kmodet = get_object_or_404(Kmodet, id=kmodet_id)
+        if kmodet.idkmo.approved:
+            messages.info(request, 'Удаление невозможно, КМО утверждён председателем!')
+            return HttpResponseRedirect(f'/view_kmo/{kmodet.idkmo.pk}')
+        kmodet.delete()
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+
+    else:
+        messages.info(request, 'Ваших прав недостаточно! Обратитесь к администратору')
+        return HttpResponseRedirect('/kmo')
+
+
+@login_required()
+def create_kmo_det(request, kmo_id, kmo_det_department):
     # if request.user.groups.filter(name='worker_view').count():
-    kmodet = get_object_or_404(Kmodet, id=kmodet_id)
-    kmodet.delete()
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+    idKMO = Kmo.objects.get(id=kmo_id)
+    if idKMO.approved:
+        return HttpResponseRedirect(f'/view_kmo/{kmo_id}')
+    error = ''
+    if request.method == 'POST':
+        print('=========== POST =============')
+        form_create_kmodet = KMOdetForm_edit(request.POST, request.FILES)
+        if form_create_kmodet.is_valid():
+            print('=========== form_create_kmodet is_valid=============')
+            form_create_kmodet.instance.user_creator = request.user.username
+            form_create_kmodet.save()
+            # return render(request, 'KMO/index.html')
+            return redirect(f'/edit_kmo/{kmo_id}')
+        else:
+            error = 'Форма ошибочна \n' + str(form_create_kmodet.errors)
+    else:
+        idDepartment = Bs_department.objects.get(id=kmo_det_department)
+        idDepowner_row = Kmo.objects.filter(id=kmo_id).values('iddepowner').first()
+        idDepowner = Bs_depowner.objects.get(id=idDepowner_row['iddepowner'])
+        kmodet = Kmodet(idkmo=idKMO, iddepartment=idDepartment, date_detection=datetime.now().date(),
+                        user_creator=request.user.username, iddepowner=idDepowner)
+
+        form_create_kmodet = KMOdetForm_create(instance=kmodet)
+
+        context = {
+            'title_view': 'Создать неисправность КМО',
+            'form_create_kmodet': form_create_kmodet,
+            'header_KMO_data': idKMO,
+            'idDepartment': idDepartment,
+            'error': error,
+        }
+        return render(request, 'KMO/KMO_det/create_kmo_det.html', context)
 
 
 # else:
 #     messages.info(request, 'Ваших прав недостаточно! Обратитесь к администратору')
 #     return HttpResponseRedirect('/kmo')
 
-
-@login_required()
-def create_kmo_det(request, kmo_id, kmo_det_department):
-    # if request.user.groups.filter(name='worker_view').count():
-        error = ''
-        if request.method == 'POST':
-            form_create_kmodet = KMOdetForm_edit(request.POST, request.FILES)
-            if form_create_kmodet.is_valid():
-                form_create_kmodet.instance.user_creator = request.user.username
-                form_create_kmodet.save()
-                # return render(request, 'KMO/index.html')
-                return redirect(f'/edit_kmo/{kmo_id}')
-            else:
-                error = 'Форма ошибочна \n' + str(form_create_kmodet.errors)
-        else:
-            idKMO = Kmo.objects.get(id=kmo_id)
-            idDepartment = Bs_department.objects.get(id=kmo_det_department)
-            kmodet = Kmodet(idkmo=idKMO, iddepartment=idDepartment, date_detection=datetime.now().date(), user_creator=request.user.username)
-
-
-            form_create_kmodet = KMOdetForm_edit(instance=kmodet)
-            context = {
-                'title_view': 'Создать неисправность КМО',
-                'form_create_kmodet': form_create_kmodet,
-                'header_KMO_data': idKMO,
-                'idDepartment': idDepartment,
-                'error': error,
-            }
-            return render(request, 'KMO/KMO_det/create_kmo_det.html', context)
-    # else:
-    #     messages.info(request, 'Ваших прав недостаточно! Обратитесь к администратору')
-    #     return HttpResponseRedirect('/kmo')
-
 @login_required()
 def edit_kmo_det(request, kmodet_id):
     kmodet = get_object_or_404(Kmodet, id=kmodet_id)
+    if kmodet.idkmo.approved:
+        return HttpResponseRedirect(f'/view_kmo_det/{kmodet_id}')
     kmo_main = Kmodet.objects.filter(id=kmodet_id).values('idkmo').first()
     print('=====================================', kmo_main)
     if request.method == 'POST':
-        edit_form = KMOdetForm_edit(request.POST, request.FILES, instance=kmodet)
-        print('============= BEFORE  is_valid  ========================')
+        edit_form = KMOdetForm_create(request.POST, request.FILES, instance=kmodet)
+        # print('============= BEFORE  is_valid  ========================')
         pprint(edit_form)
-        print('============= AFTER  is_valid  ========================')
+        # print('============= AFTER  is_valid  ========================')
         if edit_form.is_valid():
-            print('=============   is_valid  ========================')
+            # print('=============   is_valid  ========================')
             edit_form.instance.s_update_user = request.user.username
             edit_form.save()
-            print(
-                '_______________________________________________SSSSSSSSAAAAAAAAAAAAAAAAVVVVVVVVVVVVEEEEEEEEEEE_______________________')
             # return redirect('edit_kmo', edit_form.instance.id)
             return redirect(f"/edit_kmo/{kmo_main['idkmo']}")
-            # return redirect(f'/kmo')
     else:
-        edit_kmodet_form = KMOdetForm_edit(instance=kmodet)
+        edit_kmodet_form = KMOdetForm_create(instance=kmodet)
         depart = edit_kmodet_form.instance.iddepartment
         header_KMO_data = Kmo.objects.get(id=kmo_main['idkmo'])
         content = {'title_view': 'Редактирование неисправности',
@@ -336,15 +347,77 @@ def edit_kmo_det(request, kmodet_id):
                    # 'form_create_kmodet': edit_kmodet_form,
                    'header_KMO_data': header_KMO_data,
                    'iddepartment': depart,
+                   'iddepowner_f': header_KMO_data.iddepowner,
                    }
 
         return render(request, 'KMO/KMO_det/edit_kmo_det.html', context=content)
 
 
+def zadeploil(request):
+    return render(request, 'Main/z.html')
+
+
 @login_required()
 def view_kmo_det(request, kmodet_id):
     kmodet = get_object_or_404(Kmodet, id=kmodet_id)
+    kmo_main = Kmodet.objects.filter(id=kmodet_id).values('idkmo').first()
+    depart = kmodet.iddepartment
+    header_KMO_data = Kmo.objects.get(id=kmo_main['idkmo'])
+    content = {'title_view': 'Редактирование неисправности',
+               'view_kmodet': kmodet,
+               'header_KMO_data': header_KMO_data,
+               'iddepartment': depart,
+               }
 
-    content = {'title_view': 'Просмотр', 'view_form': kmodet}
+    return render(request, 'KMO/KMO_det/view_kmo_det.html', context=content)
 
-    return render(request, 'KMO/view_kmo.html', context=content)
+
+@login_required()
+def done_kmo_det(request, kmodet_id):
+    # if request.user.groups.filter(name='worker_view').count():
+    kmodet = get_object_or_404(Kmodet, id=kmodet_id)
+    if kmodet.idkmo.approved is False:
+        messages.info(request, 'ОШИБКА! Устранять неисправности можно только ПОСЛЕ утверждения КМО')
+        return HttpResponseRedirect(f'/view_kmo/{kmodet.idkmo.pk}')
+    if request.user == kmodet.idresponsible.idprofile.user:
+        kmodet.eliminated = True
+        kmodet.save()
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+    else:
+        messages.info(request, 'ОШИБКА! Признак устранения может ставить Пользователь, '
+                               'указанный в графе "Ответственный за устранение"')
+        return HttpResponseRedirect(f'/view_kmo/{kmodet.idkmo.pk}')
+
+
+def index_qr(request):
+    qr_image = False
+    if request.method == "POST":
+        data = request.POST['data']
+        data = f'https://gpt-connect.ru/view_kmodet_by_qr/{'stp'}/{3}'
+        img = make_qr(data)
+        img.save("media/qr/test.png")
+        qr_image = True
+
+    return render(request, 'qrgenerator/index.html', {'qr_image': qr_image})
+
+
+@login_required()
+def view_kmodet_by_qr(request, type_obj, id_obj):
+    if type_obj == 'stp':
+        obj_rows = Kmodet.objects.filter(idrwsp=id_obj).order_by('date_detection').reverse()  # Если стрелочные переводы
+        obj_row_last = Kmodet.objects.filter(idrwsp=id_obj).last()  # Если стрелочные переводы(последняя запись)
+        name_obj = f'Стрелочный Перевод №{obj_row_last.idrwsp.s_name} ст.{obj_row_last.idrwsp.idrwstation.s_name}'
+    elif type_obj == 'way':
+        obj_rows = Kmodet.objects.filter(idrwway=id_obj)  # Если жд пути
+        obj_row_last = Kmodet.objects.filter(idrwway=id_obj).last()  # Если стрелочные переводы(последняя запись)
+    else:
+        obj_row_last = 'None 1'
+        obj_rows = 'None 2'
+
+    return render(request, 'KMO/KMO_det/view_kmodet_by_qr.html', {'obj_row_last': obj_row_last,
+                                                                  'obj_rows': obj_rows,
+                                                                  'url_kmo': f'/view_kmo/{obj_row_last.idkmo.pk}',
+                                                                  'name_obj': name_obj}
+                  )
+
+

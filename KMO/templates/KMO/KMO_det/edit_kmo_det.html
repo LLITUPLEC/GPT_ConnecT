@@ -14,6 +14,7 @@
 
     <form method="post" style="margin-top: 10px; margin-bottom: 30px" enctype="multipart/form-data">
         {% csrf_token %}
+        {{ edit_kmodet_form.media.js }}
         <div style="display: flex; justify-content: space-around;flex-wrap: wrap;">
             <div class="general_info">
                 <p style="font-size: 24px; text-decoration: underline;">Общие данные</p>
@@ -57,6 +58,10 @@
                 <p style="font-size: 24px; text-decoration: underline;">Привязка</p>
                 <table class="table table-borderless">
                   <tbody>
+                    <tr class="d-none">
+                      <td scope="row">Филиал неисправности</td>
+                      <td>{{ edit_kmodet_form.iddepowner }}</td>
+                    </tr>
                     <tr>
                       <td scope="row">Станция</td>
                       <td>{{ edit_kmodet_form.idrwstation }}</td>
@@ -124,10 +129,10 @@
                       <td scope="row">Величина неисправности</td>
                       <td>{{ edit_kmodet_form.RW_size_def }}</td>
                     </tr>
-                  <tr>
-                      <td scope="row">Устранено</td>
-                      <td>{{ edit_kmodet_form.eliminated }}</td>
-                    </tr>
+<!--                  <tr>-->
+<!--                      <td scope="row">Устранено</td>-->
+<!--                      <td>{{ edit_kmodet_form.eliminated }}</td>-->
+<!--                    </tr>-->
                   <tr>
                       <td scope="row">Комментарий</td>
                       <td>{{ edit_kmodet_form.comment }}</td>

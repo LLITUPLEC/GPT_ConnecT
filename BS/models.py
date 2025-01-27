@@ -94,7 +94,7 @@ class Bs_RWway(models.Model):
 
 class Bs_RWkilometr(models.Model):
     s_mnemocode = models.CharField('мнемокод', max_length=10, blank=True, null=True)
-    s_name = models.CharField('км', max_length=5)
+    s_name = models.CharField('км', max_length=6)
     idrwstation = models.ForeignKey(Bs_RWStation, on_delete=models.SET_NULL, verbose_name='Станция/участок', null=True)
     s_create_user = models.CharField('Создатель', max_length=25)
     created_at = models.DateTimeField('Дата создания', auto_now_add=True, editable=False)
@@ -131,8 +131,8 @@ class Bs_RWstage(models.Model):
 
 class Bs_RWsp(models.Model):
     s_mnemocode = models.CharField('мнемокод', max_length=10, blank=True, null=True)
-    s_name = models.CharField('Стрелочный перевод', max_length=5)
-    idrwstation = models.ForeignKey(Bs_RWway, on_delete=models.SET_NULL, verbose_name='Путь', null=True)
+    s_name = models.CharField('Стрелочный перевод', max_length=8)
+    idrwstation = models.ForeignKey(Bs_RWStation, on_delete=models.SET_NULL, verbose_name='Станция', null=True)
     s_create_user = models.CharField('Создатель', max_length=25)
     created_at = models.DateTimeField('Дата создания', auto_now_add=True, editable=False)
     s_update_user = models.CharField('Изменивший', max_length=25, null=True, blank=True)
@@ -187,7 +187,7 @@ class Bs_RW_element(models.Model):
 # 3 столбец
 class Bs_RW_defect_gr(models.Model):
     s_mnemocode = models.CharField('мнемокод', max_length=10)
-    s_name = models.CharField('Группа Неисправности', max_length=50)
+    s_name = models.CharField('Группа Неисправности', max_length=100)
     id_rw_element = models.ForeignKey(Bs_RW_element, on_delete=models.CASCADE, verbose_name='Элемент осмотра')
     s_create_user = models.CharField('Создатель', max_length=25)
     created_at = models.DateTimeField('Дата создания', auto_now_add=True, editable=False)
@@ -206,7 +206,7 @@ class Bs_RW_defect_gr(models.Model):
 class Bs_RW_defect_tp(models.Model):
     s_mnemocode = models.CharField('мнемокод', max_length=10)
     id_RW_defect_gr = models.ForeignKey(Bs_RW_defect_gr, on_delete=models.CASCADE, verbose_name='Группа Неисправности')
-    s_name = models.CharField('Вид неисправности', max_length=100)
+    s_name = models.CharField('Вид неисправности', max_length=150)
     s_deviation_interval = models.CharField('Интервал отклонения', max_length=5, null=True)
     s_deviation_interval_dop = models.CharField('Интервал отклонения_2', max_length=5, null=True)
     d_deadline = models.CharField('Крайний срок (в днях)', max_length=3, null=True)

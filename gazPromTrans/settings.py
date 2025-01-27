@@ -28,7 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-
+CSRF_TRUSTED_ORIGINS = ['https://gpt-connect.ru', 'https://178.20.41.29']
 # Application definition
 
 INSTALLED_APPS = [
@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'users',
     'crispy_forms',
     'crispy_bootstrap4',
+    'smart_selects',
+    'qrgenerator',
 ]
 
 MIDDLEWARE = [
@@ -142,4 +144,5 @@ LOGIN_URL = 'login'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 

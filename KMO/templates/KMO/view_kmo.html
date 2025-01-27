@@ -1,4 +1,5 @@
 {% extends 'main/base.html'%}
+{% load static %}
 {% block title %}
 {{title_view}}
 {% endblock %}
@@ -6,121 +7,180 @@
 <div class="container" style="margin-bottom: 150px; margin-top: 20px;">
 
     <h2>Просмотр Акта КМО №{{ view_form.n_regnumber }} от {{ view_form.date_detection }}</h2>
+    {% if kmo_data.approved %}
+    <h5 style="color: green; background: greenyellow;">КМО утверждён</h5>
+    {% else %}
+    <h5 style="color: #2041e5cc; background: #249ce35e;">КМО оформляется</h5>
+    {% endif%}
     <div style="margin-top: 10px; margin-bottom: 30px">
         <div style="display: flex; justify-content: space-around;flex-wrap: wrap;">
-            <div class="general_info">
-                <p style="font-size: 24px; text-decoration: underline;">Общие данные</p>
-                <table class="table table-borderless">
-                  <tbody>
-                    <tr class="d-none">
-                      <td >Создатель</td>
-                      <td>{{ view_form.s_update_user }}</td>
-                    </tr>
-                    <tr>
-                      <td >Рег. №</td>
-                      <td>{{ view_form.n_regnumber }}</td>
-                    </tr>
-                    <tr>
-                      <td scope="row">Дата обнаружения</td>
-                      <td>{{ view_form.date_detection }}</td>
-                    </tr>
-                    <tr>
-                      <td scope="row">Филиал</td>
-                      <td>{{ view_form.iddepowner }}</td>
-                    </tr>
-<!--                    <tr>-->
-<!--                      <td scope="row">Подразделение</td>-->
-<!--                      <td>{{ view_form.iddepartment }}</td>-->
-<!--                    </tr>-->
-                  </tbody>
-                </table>
-<!--                <p style="font-size: 24px; text-decoration: underline;">Привязка</p>-->
-<!--                <table class="table table-borderless">-->
-<!--                  <tbody>-->
-<!--                    <tr>-->
-<!--                      <td scope="row">Станция</td>-->
-<!--                      <td>{{ view_form.idRWStation }}</td>-->
-<!--                    </tr>-->
-<!--                    <tr>-->
-<!--                      <td scope="row">Перегон</td>-->
-<!--                      <td>{{ view_form.RW_transfer }}</td>-->
-<!--                    </tr>-->
-<!--                    <tr>-->
-<!--                      <td scope="row">Путь</td>-->
-<!--                      <td>{{ view_form.RW_way }}</td>-->
-<!--                    </tr>-->
-<!--                    <tr>-->
-<!--                      <td scope="row">Километр</td>-->
-<!--                      <td>{{ view_form.RW_km }}</td>-->
-<!--                    </tr>-->
-<!--                  <tr>-->
-<!--                      <td scope="row">Пикет</td>-->
-<!--                      <td>{{ view_form.RW_picket }}</td>-->
-<!--                    </tr>-->
-<!--                  <tr>-->
-<!--                      <td scope="row">Звено</td>-->
-<!--                      <td>{{ view_form.RW_unit }}</td>-->
-<!--                    </tr>-->
-<!--                  <tr>-->
-<!--                      <td scope="row">Нитка</td>-->
-<!--                      <td>{{ view_form.RW_thread }}</td>-->
-<!--                    </tr>-->
-<!--                  </tbody>-->
-<!--                </table>-->
+            <div class="general_info" style="display: flex; justify-content: space-around; width: 100%; flex-wrap: wrap;">
+                <div>
+                    <p style="font-size: 24px; text-decoration: underline;">Общие данные</p>
+                    <table class="table table-borderless">
+                      <tbody>
+                        <tr class="d-none">
+                          <td >Создатель</td>
+                          <td>{{ kmo_data.s_update_user }}</td>
+                        </tr>
+                        <tr>
+                          <td >Рег. №</td>
+                          <td><b>{{ kmo_data.n_regnumber }}</b></td>
+                        </tr>
+                        <tr>
+                          <td scope="row">Дата проведения</td>
+                          <td><b>{{ kmo_data.date_detection }}</b></td>
+                        </tr>
+                        <tr>
+                          <td scope="row">Филиал</td>
+                          <td><b>{{ kmo_data.iddepowner }}</b></td>
+                        </tr>
+                        <tr>
+                          <td scope="row">Председатель</td>
+                          <td><b>{{ kmo_data.idprofile }}</b></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                </div>
+
+                <div>
+                    <p style="font-size: 24px; text-decoration: underline;">Сводка</p>
+                    <table class="table table-borderless">
+                      <tbody>
+                        <tr>
+                          <td scope="row">Всего выявлено замечаний</td>
+                          <td><b>{{ data_kmodet_all.kmodet_all_count }}</b></td>
+                        </tr>
+                        <tr>
+                          <td scope="row">Не устранено замечаний</td>
+                          <td><b>{{ data_kmodet_all.kmodet_count_active }}</b></td>
+                        </tr>
+                        <tr>
+                          <td scope="row">С нарушением срока на сегодня неустранённые замечания</td>
+                          <td><b>{{ data_kmodet_all.kmodet_count_overdue }}</b></td>
+                        </tr>
+                        <tr>
+                          <td scope="row">Перешедшие замечания с прошлых КМО</td>
+                          <td>*</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                </div>
+
             </div>
-<!--            <div class="defect">-->
-<!--                <p style="font-size: 24px; text-decoration: underline;">Неисправность</p>-->
-<!--                <table class="table table-borderless">-->
-<!--                  <tbody>-->
-<!--                    <tr>-->
-<!--                      <td >Обект осмотра</td>-->
-<!--                      <td>{{ view_form.idBs_Obj_insp }}</td>-->
-<!--                    </tr>-->
-<!--                    <tr>-->
-<!--                      <td scope="row">Элемент</td>-->
-<!--                      <td>{{ view_form.idBs_RW_element }}</td>-->
-<!--                    </tr>-->
-<!--                    <tr>-->
-<!--                      <td scope="row">Группа неисправности</td>-->
-<!--                      <td>{{ view_form.idBs_RW_defect_gr }}</td>-->
-<!--                    </tr>-->
-<!--                    <tr>-->
-<!--                      <td scope="row">Неисправность</td>-->
-<!--                      <td>{{ view_form.idBs_RW_defect_tp }}</td>-->
-<!--                    </tr>-->
-<!--                    <tr>-->
-<!--                      <td scope="row">Ответственный</td>-->
-<!--                      <td>{{ view_form.idprofile }}</td>-->
-<!--                    </tr>-->
-<!--                    <tr>-->
-<!--                      <td scope="row">Срок устранения</td>-->
-<!--                      <td>{{ view_form.date_elimination }}</td>-->
-<!--                    </tr>-->
-<!--                    <tr>-->
-<!--                      <td scope="row">Срок устранения изменить</td>-->
-<!--                      <td>{{ view_form.date_elimination_edit }}</td>-->
-<!--                    </tr>-->
-<!--                  </tbody>-->
-<!--                </table>-->
+            <div style="width: 100% !important;margin-bottom: 25px;">
+                    <nav>
+                      <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                        <button class="nav-link active" id="nav-members-tab" data-bs-toggle="tab" data-bs-target="#nav-members" type="button" role="tab" aria-controls="nav-members" aria-selected="true">Члены Комиссии</button>
+                        <button class="nav-link" id="nav-SP-tab" data-bs-toggle="tab" data-bs-target="#nav-SP" type="button" role="tab" aria-controls="nav-SP" aria-selected="false">Служба СП</button>
+                        <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">Служба СЦБ</button>
+                        <button class="nav-link" id="nav-contact1-tab" data-bs-toggle="tab" data-bs-target="#nav-contact1" type="button" role="tab" aria-controls="nav-contact1" aria-selected="false">Служба СПиМР</button>
+                      </div>
+                    </nav>
+                    <div class="tab-content" id="nav-tabContent">
+                      <div class="tab-pane fade show active" id="nav-members" role="tabpanel" aria-labelledby="nav-members-tab">
 
-<!--            </div>-->
-<!--            <div class="defect-img" style="margin-bottom: 15px;">-->
-<!--                <p style="font-size: 24px; text-decoration: underline;">Фотография неисправности</p>-->
-<!--                <p>{{ view_form.image_defect }}</p>-->
-<!--                {% if view_form.image_defect %}-->
-<!--                    <a href="{{ view_form.image_defect.url }}" target="_blank">-->
-<!--                        <img src="{{ view_form.image_defect.url }}" alt="" style="max-width: 320px;">-->
-<!--                        {{ view_form.image_defect }}-->
-<!--                    </a>-->
-<!--                {% endif %}-->
+                          <table class="table table-striped table-bordered table-hover">
+                            <thead class="table-primary">
+                              <tr>
+                                <th scope="col">Должность | ФИО</th>
+                              </tr>
+                            </thead>
+                            <tbody id="nav-memberss">
+                                {{form_members.management_form}}
+                                {% for form_h in form_members %}
+                                    <tr class="members-form">
+                                        <td colspan="10">{{form_h.idprofile}}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
 
-<!--            </div>-->
+                          </table>
+
+
+
+
+                      </div>
+                      <div class="tab-pane fade table-responsive" id="nav-SP" role="tabpanel" aria-labelledby="nav-SP-tab">
+                          <table class="table table-striped table-bordered table-hover">
+                            <thead class="table-primary">
+                              <tr>
+                                <th scope="col">Опер-ии</th>
+                                <th scope="col">Дата проведения</th>
+                                <th scope="col">Станция</th>
+                                <th scope="col">№ Пути</th>
+                                <th scope="col">№ стр.перевода</th>
+                                <th scope="col">Неисправность</th>
+                                <th scope="col">Величина</th>
+                                <th scope="col">Ограничение скорости</th>
+                                <th scope="col">Дата устранения</th>
+                                <th scope="col">Ответственный</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% if data_kmodet_sp %}
+                                {% for kmodet_sp in data_kmodet_sp %}
+                                  <tr class="table-{% if kmodet_sp.eliminated == 1 %}success{% elif kmodet_sp.eliminated == 0 and kmodet_sp.date_elimination < data_kmodet_all.datenow %}danger{% else %}light{% endif %}">
+                                    <th scope="row">
+                                        <div class="btn-group">
+                                            <a class="btn btn-sm btn-outline-secondary" href="{% url 'view_kmo_det' kmodet_sp.id %}"><img src="{% static 'icons/view_2.svg' %}" style="width: 16px"></a>
+                                            {% if kmodet_sp.eliminated == 0 and kmodet_sp.idkmo.approved %}
+                                            <a class="btn btn-sm btn-outline-secondary" href="{% url 'done_kmo_det' kmodet_sp.id  %}"><img src="{% static 'icons/done.svg' %}" style="width: 16px"></a>
+                                            {% endif %}
+                                        </div>
+
+                                    </th>
+                                    <td>{{kmodet_sp.date_detection}}</td>
+                                    <td>{{kmodet_sp.idrwstation}}</td>
+                                    <td>{{kmodet_sp.idrwway}}</td>
+                                    <td>{{kmodet_sp.idrwsp}}</td>
+                                    <td>{{kmodet_sp.idBs_RW_defect_tp}}</td>
+                                    <td>{{kmodet_sp.RW_size_def}}</td>
+                                    <td>20</td>
+                                    <td>{{kmodet_sp.date_elimination}}</td>
+                                    <td>{{kmodet_sp.idresponsible}}</td>
+                                  </tr>
+                                {% endfor %}
+                              {% else %}
+                                  <tr>
+                                    <th scope="row">0</th>
+                                    <td colspan="9">Неисправности/замечания отсутствуют...</td>
+                                  </tr>
+                              {% endif %}
+                            </tbody>
+                          </table>
+                      </div>
+                      <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">Это некий заполнитель содержимого, связанного с содержимым вкладки "Главная". Щелчок по другой вкладке переключает видимость этой на следующую. Вкладка JavaScript меняет местами классы для управления видимостью и стилем содержимого. Вы можете использовать его с вкладками, таблетками и любой другой навигацией с поддержкой .nav.</div>
+                      <div class="tab-pane fade" id="nav-contact1" role="tabpanel" aria-labelledby="nav-contact-tab">Это некий заполнитель содержимого, связанного с содержимым вкладки "Главная". Щелчок по другой вкладке переключает видимость этой на следующую. Вкладка JavaScript меняет местами классы для управления видимостью и стилем содержимого. Вы можете использовать его с вкладками, таблетками и любой другой навигацией с поддержкой .nav.</div>
+                    </div>
+            </div>
         </div>
         <a class="btn btn-danger" href="{% url 'kmo' %}">Выйти</a>
-        <a class="btn btn-info" href="{% url 'kmo_pdf' view_form.id %}">Сформировать акт в PDF</a>
+        {% if kmo_data.approved == 0 %}
+            <a class="btn btn-warning" href="{% url 'approv_kmo' id_kmo_edit %}">Утвердить</a>
+        {% else %}
+            <a class="btn btn-info" href="{% url 'kmo_pdf' id_kmo_edit %}">Сформировать акт в PDF</a>
+        {% endif %}
+
     </div>
 
 </div>
+<!--<script type="text/javascript">-->
+<!--    $("#sp_{{ data_kmodet_sp.kmodet_sp.id }}").submit(function (e) { // Устанавливаем событие отправки для формы с id=form-->
+<!--           e.preventDefault();-->
+<!--           alert("Ваше сообщение отправлено!");-->
+<!--            var form_data = $(this).serialize(); // Собираем все данные из формы-->
+<!--            $.ajax({-->
+<!--                type: "POST", // Метод отправки-->
+<!--                url: "{% url 'done_kmo_det' 1  %}", // Путь до py файла отправителя-->
+<!--                data: form_data,-->
+<!--                success: function () {-->
+<!--                    // Код в этом блоке выполняется при успешной отправке сообщения-->
+<!--                    alert("Ваше сообщение отправлено!");-->
+<!--                }-->
+<!--            });-->
+<!--        });-->
+<!--</script>-->
 {% endblock %}
 
 {% block li-kmo %}
