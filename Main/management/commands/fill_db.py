@@ -3,7 +3,7 @@ import pandas as pd
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from BS.models import Bs_depowner, Bs_department, Bs_position, Bs_RWStation, Bs_Obj_insp, Bs_RW_element, \
-    Bs_RW_defect_gr, Bs_RW_defect_tp, Bs_RWway
+    Bs_RW_defect_gr, Bs_RW_defect_tp, Bs_RWway, Bs_RWsp
 from Main.models import Profile
 
 
@@ -74,7 +74,8 @@ class Command(BaseCommand):
             rwStation = Bs_RWStation(s_mnemocode=get_data_station['Мнемокод'][idx_data_station],
                                      s_name=get_data_station['Название'][idx_data_station],
                                      s_create_user='auto_fill',
-                                     iddepowner=Bs_depowner.objects.get(s_name=get_data_station['Филиал'][idx_data_station]),
+                                     iddepowner=Bs_depowner.objects.get(
+                                         s_name=get_data_station['Филиал'][idx_data_station]),
                                      not_used=0)
             rwStation.save()
         # END_ЖД станция/участок----------------------------------------------------------------------------------------
@@ -83,22 +84,46 @@ class Command(BaseCommand):
         data_path_way = f"static/bs/Пути.xlsx"  # файл с указанием названий филиалов
         get_data_way = pd.read_excel(data_path_way)
         for idx_data_way in get_data_way.index:
-            rwway = Bs_RWway(s_mnemocode=get_data_way['Мнемокод'][idx_data_way],
-                                     s_name=get_data_way['Название'][idx_data_way],
-                                     s_create_user='auto_fill',
-                                     idrwstation=Bs_RWStation.objects.get(s_name=get_data_way['Станция'][idx_data_way]),
-                                     not_used=0)
-            rwway.save()
+            try:
+                rwway = Bs_RWway(s_mnemocode=get_data_way['Мнемокод'][idx_data_way],
+                                 s_name=get_data_way['Название'][idx_data_way],
+                                 s_create_user='auto_fill',
+                                 idrwstation=Bs_RWStation.objects.get(s_name=get_data_way['Станция'][idx_data_way]),
+                                 not_used=0)
+                rwway.save()
+            except Exception as e:
+                print(f"Exception occurred for value BEGIN_ ЖД Пути'" + "': " + repr(e))
+
         # END_ ЖД Пути--------------------------------------------------------------------------------------------------
 
-        # # подразделения
-        # objects = Bs_depowner.objects.filter(s_create_user='auto_fill')  # .only("s_name")  # only('s_name')
-        # for x in objects:
-        #     department = Bs_department(iddepowner=x, s_mnemocode='d', s_name='СПиМР', s_create_user='auto_fill', not_used=0)
-        #     department.save()
-        #     department = Bs_department(iddepowner=x, s_mnemocode='l', s_name='СЛХ', s_create_user='auto_fill', not_used=0)
-        #     department.save()
-        #     department = Bs_department(iddepowner=x, s_mnemocode='v', s_name='ВЧД', s_create_user='auto_fill', not_used=0)
-        #     department.save()
-        #     department = Bs_department(iddepowner=x, s_mnemocode='sh', s_name='ШЧ', s_create_user='auto_fill', not_used=0)
-        #     department.save()
+        # BEGIN_ ЖД Стрелочные переводы---------------------------------------------------------------------------------
+        data_path_sp = f"static/bs/Стрелочные переводы.xlsx"  # файл с указанием названий филиалов
+        get_data_sp = pd.read_excel(data_path_sp)
+        for idx_data_sp in get_data_sp.index:
+            try:
+                rwsp = Bs_RWsp(s_name=get_data_sp['№ стрелочного перевода'][idx_data_sp],
+                               s_create_user='auto_fill',
+                               idrwstation=Bs_RWStation.objects.get(s_name=get_data_sp['Станция'][idx_data_sp],
+                                                                    iddepowner__s_name=get_data_sp['Филиал'][
+                                                                        idx_data_sp]),
+                               manag_method=get_data_sp['Способ управления'][idx_data_sp],
+                               type_rail=get_data_sp['Тип рельсов'][idx_data_sp],
+                               mark_crossp=get_data_sp['Марка крестовины'][idx_data_sp],
+                               view_conversion=get_data_sp['Вид перевода'][idx_data_sp],
+                               not_used=0)
+                rwsp.save()
+            except Exception as e:
+                print(f"Exception occurred for value BEGIN_ ЖД Стрелочные переводы'" + "': " + repr(e))
+        # END_ ЖД Стрелочные переводы-----------------------------------------------------------------------------------
+
+# # подразделения
+# objects = Bs_depowner.objects.filter(s_create_user='auto_fill')  # .only("s_name")  # only('s_name')
+# for x in objects:
+#     department = Bs_department(iddepowner=x, s_mnemocode='d', s_name='СПиМР', s_create_user='auto_fill', not_used=0)
+#     department.save()
+#     department = Bs_department(iddepowner=x, s_mnemocode='l', s_name='СЛХ', s_create_user='auto_fill', not_used=0)
+#     department.save()
+#     department = Bs_department(iddepowner=x, s_mnemocode='v', s_name='ВЧД', s_create_user='auto_fill', not_used=0)
+#     department.save()
+#     department = Bs_department(iddepowner=x, s_mnemocode='sh', s_name='ШЧ', s_create_user='auto_fill', not_used=0)
+#     department.save()

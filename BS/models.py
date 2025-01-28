@@ -133,6 +133,10 @@ class Bs_RWsp(models.Model):
     s_mnemocode = models.CharField('мнемокод', max_length=10, blank=True, null=True)
     s_name = models.CharField('Стрелочный перевод', max_length=8)
     idrwstation = models.ForeignKey(Bs_RWStation, on_delete=models.SET_NULL, verbose_name='Станция', null=True)
+    manag_method = models.CharField('Способ управления', max_length=15, default="Неопределенно")
+    type_rail = models.CharField('Тип рельсов', max_length=8, default="Неопределенно")
+    mark_crossp = models.CharField('Марка крестовины', max_length=8, default="Неопределенно")
+    view_conversion = models.CharField('Вид перевода', max_length=20, default="Неопределенно")
     s_create_user = models.CharField('Создатель', max_length=25)
     created_at = models.DateTimeField('Дата создания', auto_now_add=True, editable=False)
     s_update_user = models.CharField('Изменивший', max_length=25, null=True, blank=True)
@@ -140,7 +144,7 @@ class Bs_RWsp(models.Model):
     not_used = models.BooleanField('Недействующий', default=False)
 
     def __str__(self):
-        return str(self.s_name) + '(' + str(self.idrwstation) + ')'
+        return str(self.s_name) + ' ' + str(self.mark_crossp)
 
     class Meta:
         verbose_name = 'Стрелочный перевод'
