@@ -62,7 +62,7 @@ class Kmo(models.Model):
 
     def __str__(self):
         return ('КМО Рег. №' + str(self.n_regnumber) + ' от ' + str(self.date_detection)
-               # + '(' + str(self.iddepowner) + ') [' + str(self.created_at) + ']'
+                # + '(' + str(self.iddepowner) + ') [' + str(self.created_at) + ']'
                 )
 
     class Meta:
@@ -99,19 +99,34 @@ class Kmodet(models.Model):
     # idrwsp = models.ForeignKey(Bs_RWsp, on_delete=models.CASCADE, verbose_name='Стрелочный перевод', null=True,
     #                            blank=True, default=None)
     idrwsp = ChainedForeignKey(Bs_RWsp, chained_field="idrwstation",
-                                chained_model_field="idrwstation",
-                                show_all=False,
-                                auto_choose=True,
-                                sort=True)
+                               chained_model_field="idrwstation",
+                               show_all=False,
+                               auto_choose=True,
+                               sort=True)
 
     RW_picket = models.CharField(max_length=2, choices=picket_CHOICES, verbose_name='пикет')
     RW_unit = models.CharField('Звено', choices=zveno_CHOICES, max_length=2)
     RW_thread = models.CharField('Нитка', choices=thread_CHOICES, max_length=6)
 
-    idBs_Obj_insp = models.ForeignKey(Bs_Obj_insp, on_delete=models.CASCADE, verbose_name='Объект осмотра')
-    idBs_RW_element = models.ForeignKey(Bs_RW_element, on_delete=models.CASCADE, verbose_name='Элемент осмотра')
-    idBs_RW_defect_gr = models.ForeignKey(Bs_RW_defect_gr, on_delete=models.CASCADE,
-                                          verbose_name='Группа Неисправности')
+    # idBs_Obj_insp = models.ForeignKey(Bs_Obj_insp, on_delete=models.CASCADE, verbose_name='Объект осмотра')
+    idBs_Obj_insp = ChainedForeignKey(Bs_Obj_insp, chained_field="iddepartment",
+                                      chained_model_field="iddepartment",
+                                      show_all=False,
+                                      auto_choose=True,
+                                      sort=True)
+    # idBs_RW_element = models.ForeignKey(Bs_RW_element, on_delete=models.CASCADE, verbose_name='Элемент осмотра')
+    idBs_RW_element = ChainedForeignKey(Bs_RW_element, chained_field="idBs_Obj_insp",
+                                        chained_model_field="id_obj_insp",
+                                        show_all=False,
+                                        auto_choose=True,
+                                        sort=True)
+    # idBs_RW_defect_gr = models.ForeignKey(Bs_RW_defect_gr, on_delete=models.CASCADE,
+    #                                       verbose_name='Группа Неисправности')
+    idBs_RW_defect_gr = ChainedForeignKey(Bs_RW_defect_gr, chained_field="idBs_RW_element",
+                                          chained_model_field="id_rw_element",
+                                          show_all=False,
+                                          auto_choose=True,
+                                          sort=True)
     idBs_RW_defect_tp = models.ForeignKey(Bs_RW_defect_tp, on_delete=models.CASCADE, verbose_name='Вид неисправности')
     RW_size_def = models.CharField('Величина неисправности', max_length=100, default=None)
 
@@ -125,6 +140,7 @@ class Kmodet(models.Model):
 
     idresponsible = models.ForeignKey(Kmo_responsible, on_delete=models.CASCADE,
                                       verbose_name='Ответственный за  устранение', default=None)
+
 
     def __str__(self):
         return 'Неисправность: "' + str(self.idBs_RW_defect_tp) + '" | Служба: "' + str(

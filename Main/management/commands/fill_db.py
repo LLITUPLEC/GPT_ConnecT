@@ -23,7 +23,7 @@ class Command(BaseCommand):
         # END_филиалы---------------------------------------------------------------------------------------------------
 
         # BEGIN_Подразделения-------------------------------------------------------------------------------------------
-        depart_path = f"static/bs/Подразделения.xlsx"  # файл с указанием названий филиалов
+        depart_path = f"static/bs/Подразделения.xlsx"  # файл с указанием названий подразделений
         get_depart = pd.read_excel(depart_path)
         for idx_data in get_depart.index:
             department = Bs_department(s_mnemocode=get_depart['Мнемокод'][idx_data],
@@ -35,7 +35,7 @@ class Command(BaseCommand):
         # END_Подразделения---------------------------------------------------------------------------------------------
 
         # BEGIN_Должность-----------------------------------------------------------------------------------------------
-        position_path = f"static/bs/Должности.xlsx"  # файл с указанием названий филиалов
+        position_path = f"static/bs/Должности.xlsx"  # файл с указанием названий должностей
         get_position = pd.read_excel(position_path)
         for idx_data in get_position.index:
             position = Bs_position(s_mnemocode=get_position['Мнемокод'][idx_data],
@@ -46,7 +46,7 @@ class Command(BaseCommand):
         # END_Должность-------------------------------------------------------------------------------------------------
 
         # BEGIN_работники-----------------------------------------------------------------------------------------------
-        worker_path = f"static/bs/Работники.xlsx"  # файл с указанием названий филиалов
+        worker_path = f"static/bs/Работники.xlsx"  # файл с указанием работников
         get_worker = pd.read_excel(worker_path)
         for idx_data in get_worker.index:
             User.objects.create_user(str(get_worker['Логин'][idx_data]),
@@ -68,7 +68,7 @@ class Command(BaseCommand):
         # END_работники-------------------------------------------------------------------------------------------------
 
         # BEGIN_ЖД станция/участок--------------------------------------------------------------------------------------
-        data_path_stations = f"static/bs/Станции.xlsx"  # файл с указанием названий филиалов
+        data_path_stations = f"static/bs/Станции.xlsx"  # файл с указанием названий станций
         get_data_station = pd.read_excel(data_path_stations)
         for idx_data_station in get_data_station.index:
             rwStation = Bs_RWStation(s_mnemocode=get_data_station['Мнемокод'][idx_data_station],
@@ -81,7 +81,7 @@ class Command(BaseCommand):
         # END_ЖД станция/участок----------------------------------------------------------------------------------------
 
         # BEGIN_ ЖД Пути------------------------------------------------------------------------------------------------
-        data_path_way = f"static/bs/Пути.xlsx"  # файл с указанием названий филиалов
+        data_path_way = f"static/bs/Пути.xlsx"  # файл с указанием названий путей
         get_data_way = pd.read_excel(data_path_way)
         for idx_data_way in get_data_way.index:
             try:
@@ -97,7 +97,7 @@ class Command(BaseCommand):
         # END_ ЖД Пути--------------------------------------------------------------------------------------------------
 
         # BEGIN_ ЖД Стрелочные переводы---------------------------------------------------------------------------------
-        data_path_sp = f"static/bs/Стрелочные переводы.xlsx"  # файл с указанием названий филиалов
+        data_path_sp = f"static/bs/Стрелочные переводы.xlsx"  # файл с указанием сп
         get_data_sp = pd.read_excel(data_path_sp)
         for idx_data_sp in get_data_sp.index:
             try:
@@ -115,6 +115,97 @@ class Command(BaseCommand):
             except Exception as e:
                 print(f"Exception occurred for value BEGIN_ ЖД Стрелочные переводы'" + "': " + repr(e))
         # END_ ЖД Стрелочные переводы-----------------------------------------------------------------------------------
+
+        # BEGIN_ НЕИСПРАВНОСТИ      СП----------------------------------------------------------------------------------
+        data_path = f"static/bs/классификатор СП.xlsx"  # файл с указанием названий объектов неисправностей
+        get_data = pd.read_excel(data_path)
+        # ==============================================================================================================
+        # =====---------------Объекты осмотра-----------------------====================================================
+        # ==============================================================================================================
+        for obj in get_data['Объекты осмотра'].unique():
+            # print(obj)
+            try:
+                obj_insp = Bs_Obj_insp(s_name=obj,
+                                       s_mnemocode=f'obj_{obj[:2]}',
+                                       s_create_user='auto_fill',
+                                       iddepartment=Bs_department.objects.get(s_name='СП'),
+                                       not_used=0)
+                obj_insp.save()
+            except Exception as e:
+                print(f"Exception occurred for value BEGIN_ объекты осмотра'" + "': " + repr(e))
+        # ==============================================================================================================
+        # =====---------------Элементы осмотра----------------------====================================================
+        # ==============================================================================================================
+        res_el = (get_data.groupby(['Объекты осмотра', 'Осматриваемые элементы и характеристики'])
+                  ['Неисправности или отклонения  от норм содержания (группы)']
+                  .apply(lambda x: list(x.values))
+                  .reset_index(name='info'))
+        for idx_data_sp in res_el.index:
+            try:
+                el_insp = Bs_RW_element(s_name=res_el['Осматриваемые элементы и характеристики'][idx_data_sp],
+                                        s_mnemocode=f'el_{idx_data_sp}',
+                                        s_create_user='auto_fill',
+                                        id_obj_insp=Bs_Obj_insp.objects.get(
+                                            s_name=res_el['Объекты осмотра'][idx_data_sp]),
+                                        not_used=0)
+                el_insp.save()
+            except Exception as e:
+                print(f"Exception occurred for value BEGIN_ 'элементы' осмотра'" + "': " + repr(e))
+        # ==============================================================================================================
+        # =====-----------------Группы осмотра----------------------====================================================
+        # ==============================================================================================================
+        res_gr = (get_data.groupby(['Объекты осмотра',
+                                    'Осматриваемые элементы и характеристики',
+                                    'Неисправности или отклонения  от норм содержания (группы)'])
+                  ['Неисправности или отклонения  от норм содержания (виды)']
+                  .apply(lambda x: list(x.values))
+                  .reset_index(name='info'))
+        for idx_data_sp in res_gr.index:
+            # print(res_gr['Объекты осмотра'][idx_data_sp], ' -> ',
+            #       res_gr['Осматриваемые элементы и характеристики'][idx_data_sp].replace('  ', ' '), ' => ',
+            #       res_gr['Неисправности или отклонения  от норм содержания (группы)'][idx_data_sp])
+
+            try:
+                el_insp = Bs_RW_defect_gr(
+                    s_name=res_gr['Неисправности или отклонения  от норм содержания (группы)'][idx_data_sp],
+                    s_mnemocode=f'gr_{idx_data_sp}',
+                    s_create_user='auto_fill',
+                    id_rw_element=Bs_RW_element.objects.get(
+                        s_name=res_gr['Осматриваемые элементы и характеристики'][idx_data_sp],
+                        id_obj_insp=Bs_Obj_insp.objects.get(s_name=res_gr['Объекты осмотра'][idx_data_sp])),
+                    not_used=0)
+                el_insp.save()
+            except Exception as e:
+                print(f"Exception occurred for value BEGIN_ 'элементы' осмотра'" + "': " + repr(e))
+        # ==============================================================================================================
+        # =====-----------------Виды осмотра (сама неисправность)---====================================================
+        # ==============================================================================================================
+        # count = 1
+        # res_tp = (get_data.groupby(['Объекты осмотра',
+        #                             'Осматриваемые элементы и характеристики',
+        #                             'Неисправности или отклонения  от норм содержания (группы)'])
+        #           ['Неисправности или отклонения  от норм содержания (виды)']
+        #           .apply(lambda x: list(x.values))
+        #           .reset_index(name='info'))
+        # for idx_data_sp1 in res_tp.index:
+        #     print(count, ' : ', res_tp['Объекты осмотра'][idx_data_sp1], ' -> ',
+        #           res_tp['Осматриваемые элементы и характеристики'][idx_data_sp1], ' => ',
+        #           res_tp['Неисправности или отклонения  от норм содержания (группы)'][idx_data_sp1])
+        #     count += 1
+            # try:
+            #     tp_insp = Bs_RW_defect_gr(
+            #         s_name=res_gr['Неисправности или отклонения  от норм содержания (группы)'][idx_data_sp],
+            #         s_mnemocode=f'gr_{idx_data_sp}',
+            #         s_create_user='auto_fill',
+            #         id_rw_element=Bs_RW_element.objects.get(
+            #             s_name=res_tp['Осматриваемые элементы и характеристики'][idx_data_sp],
+            #             id_obj_insp=Bs_Obj_insp.objects.get(s_name=res_tp['Объекты осмотра'][idx_data_sp])),
+            #         not_used=0)
+            #     tp_insp.save()
+            # except Exception as e:
+            #     print(f"Exception occurred for value BEGIN_ 'элементы' осмотра'" + "': " + repr(e))
+
+        # END_ НЕИСПРАВНОСТИ      СП------------------------------------------------------------------------------------
 
 # # подразделения
 # objects = Bs_depowner.objects.filter(s_create_user='auto_fill')  # .only("s_name")  # only('s_name')

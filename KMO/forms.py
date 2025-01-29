@@ -99,6 +99,11 @@ class KMOForm(ModelForm):
 
 
 class KMOForm_edit(ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # iddepown = Bs_depowner.objects.filter(s_name=self.instance.iddepowner).first()
+        self.fields['idprofile'].queryset = Profile.objects.filter(chairman=True, iddepowner=self.instance.iddepowner)
     class Meta:
         model = Kmo
         fields = [  #"iddepowner",
@@ -116,20 +121,6 @@ class KMOForm_edit(ModelForm):
     idprofile = ModelChoiceField(queryset=Profile.objects.filter(chairman=True), required=False,
                                  widget=Select(attrs={'class': 'form-select', 'placeholder': 'укажите председателя'}))
 
-    # def check_kmo_date_and_dep(self, kmo_id):
-    #
-    #     depowner = self.cleaned_data.get('iddepowner')  # получаем филиал из формы
-    #     date_object = str(self.cleaned_data.get('date_detection'))[:7]  # получаем дату КМО из формы
-    #     # а тут запрос к БД, сколько КМО по таким полям(филиал и дата). Должно быть 0, чтобы создать новый КМО
-    #     has_act = Kmo.objects.filter(iddepowner=Bs_depowner.objects.get(s_name=str(depowner))
-    #                                  , date_detection__icontains=date_object
-    #                                  ).exclude(id=kmo_id).count()
-    #
-    #     print('has_act => ', has_act)
-    #     if has_act > 0:
-    #         return 'error_date_dep'
-    #     else:
-    #         return depowner
 
 
 Kmo_membersFormSet = modelformset_factory(
@@ -231,8 +222,9 @@ class KMOdetForm_create1(ModelForm):
 class KMOdetForm_create(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        iddepart = Bs_depowner.objects.filter(s_name=self.instance.iddepowner).first()
-        self.fields['idrwstation'].queryset = Bs_RWStation.objects.filter(iddepowner=iddepart)
+        iddepown = Bs_depowner.objects.filter(s_name=self.instance.iddepowner).first()
+        self.fields['idrwstation'].queryset = Bs_RWStation.objects.filter(iddepowner=iddepown)
+        self.fields['idresponsible'].queryset = Kmo_responsible.objects.filter(iddepowner=iddepown, iddepartment=self.instance.iddepartment)
 
     class Meta:
         model = Kmodet
@@ -326,12 +318,27 @@ class KMOdetForm_create(ModelForm):
     idrwkilometr = ModelChoiceField(queryset=Bs_RWkilometr.objects.all(),
                                     widget=Select(attrs={'class': 'form-select', 'placeholder': 'укажите км'}))
 
-    idBs_Obj_insp = ModelChoiceField(queryset=Bs_Obj_insp.objects.all(),
-                                     widget=Select(attrs={'class': 'form-select'}))
-    idBs_RW_element = ModelChoiceField(queryset=Bs_RW_element.objects.all(),
-                                       widget=Select(attrs={'class': 'form-select'}))
-    idBs_RW_defect_gr = ModelChoiceField(queryset=Bs_RW_defect_gr.objects.all(),
-                                         widget=Select(attrs={'class': 'form-select'}))
+    # idBs_Obj_insp = ModelChoiceField(queryset=Bs_Obj_insp.objects.all(),
+    #                                  widget=Select(attrs={'class': 'form-select'}))
+    idBs_Obj_insp = ChainedForeignKey(Bs_Obj_insp, chained_field="iddepartment",
+                                      chained_model_field="iddepartment",
+                                      show_all=False,
+                                      auto_choose=True,
+                                      sort=True)
+    # idBs_RW_element = ModelChoiceField(queryset=Bs_RW_element.objects.all(),
+    #                                    widget=Select(attrs={'class': 'form-select'}))
+    idBs_RW_element = ChainedForeignKey(Bs_RW_element, chained_field="idBs_Obj_insp",
+                                        chained_model_field="id_obj_insp",
+                                        show_all=False,
+                                        auto_choose=True,
+                                        sort=True)
+    # idBs_RW_defect_gr = ModelChoiceField(queryset=Bs_RW_defect_gr.objects.all(),
+    #                                      widget=Select(attrs={'class': 'form-select'}))
+    idBs_RW_defect_gr = ChainedForeignKey(Bs_RW_defect_gr, chained_field="idBs_RW_element",
+                                        chained_model_field="id_rw_element",
+                                        show_all=False,
+                                        auto_choose=True,
+                                        sort=True)
     idBs_RW_defect_tp = ModelChoiceField(queryset=Bs_RW_defect_tp.objects.all(),
                                          widget=Select(attrs={'class': 'form-select'}))
     idresponsible = ModelChoiceField(queryset=Kmo_responsible.objects.all(),
@@ -426,10 +433,20 @@ class KMOdetForm_edit(ModelForm):
     idrwkilometr = ModelChoiceField(queryset=Bs_RWkilometr.objects.all(),
                                     widget=Select(attrs={'class': 'form-select', 'placeholder': 'укажите км'}))
 
-    idBs_Obj_insp = ModelChoiceField(queryset=Bs_Obj_insp.objects.all(),
-                                     widget=Select(attrs={'class': 'form-select'}))
-    idBs_RW_element = ModelChoiceField(queryset=Bs_RW_element.objects.all(),
-                                       widget=Select(attrs={'class': 'form-select'}))
+    # idBs_Obj_insp = ModelChoiceField(queryset=Bs_Obj_insp.objects.all(),
+    #                                  widget=Select(attrs={'class': 'form-select'}))
+    idBs_Obj_insp = ChainedForeignKey(Bs_Obj_insp, chained_field="iddepartment",
+                                      chained_model_field="iddepartment",
+                                      show_all=False,
+                                      auto_choose=True,
+                                      sort=True)
+    # idBs_RW_element = ModelChoiceField(queryset=Bs_RW_element.objects.all(),
+    #                                    widget=Select(attrs={'class': 'form-select'}))
+    idBs_RW_element = ChainedForeignKey(Bs_RW_element, chained_field="idBs_Obj_insp",
+                                        chained_model_field="idBs_Obj_insp",
+                                        show_all=False,
+                                        auto_choose=True,
+                                        sort=True)
     idBs_RW_defect_gr = ModelChoiceField(queryset=Bs_RW_defect_gr.objects.all(),
                                          widget=Select(attrs={'class': 'form-select'}))
     idBs_RW_defect_tp = ModelChoiceField(queryset=Bs_RW_defect_tp.objects.all(),

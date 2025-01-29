@@ -5,7 +5,7 @@ from pprint import pprint
 from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
 from BS.models import Bs_depowner, Bs_department, Bs_RWway
-from KMO.models import Kmo, Kmo_members, Kmodet
+from KMO.models import Kmo, Kmo_members, Kmodet, Kmo_responsible
 from KMO.forms import Kmo_membersFormSet, KMOForm_edit, KMO_check_create, KMOdetForm_edit, KMOdetForm_create
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, FileResponse, JsonResponse
@@ -46,6 +46,7 @@ def kmo(request):
                 return HttpResponseRedirect('/kmo')
             else:
                 check_form_kmo.instance.user_creator = request.user.username
+                check_form_kmo.instance.idprofile = Profile.objects.filter(chairman=True, iddepowner=check_form_kmo.instance.iddepowner).first()
                 id_dorm = check_form_kmo.save()
 
             return redirect(f'edit_kmo/{id_dorm.id}')
@@ -57,9 +58,8 @@ def kmo(request):
         created_at__month = str(current_datetime.month)
         created_at__hour = str(current_datetime.hour)
         s_dep_first_letter = Profile.objects.filter(user=request.user).values('iddepartment').first()
-        # print('s_dep_first_letter =>', s_dep_first_letter)
         kmo = Kmo(n_regnumber=created_at__month + '/' + created_at__year + '-' + created_at__hour + '_' + str(
-            s_dep_first_letter['iddepartment']),
+            s_dep_first_letter['iddepartment'], ),
                   date_detection=current_datetime.date())
         check_form_kmo = KMO_check_create(instance=kmo)
 
@@ -300,9 +300,10 @@ def create_kmo_det(request, kmo_id, kmo_det_department):
     else:
         idDepartment = Bs_department.objects.get(id=kmo_det_department)
         idDepowner_row = Kmo.objects.filter(id=kmo_id).values('iddepowner').first()
+        idresponsible_f = Kmo_responsible.objects.filter(iddepowner=idKMO.iddepowner, iddepartment=idDepartment).first()
         idDepowner = Bs_depowner.objects.get(id=idDepowner_row['iddepowner'])
         kmodet = Kmodet(idkmo=idKMO, iddepartment=idDepartment, date_detection=datetime.now().date(),
-                        user_creator=request.user.username, iddepowner=idDepowner)
+                        user_creator=request.user.username, iddepowner=idDepowner, idresponsible=idresponsible_f)
 
         form_create_kmodet = KMOdetForm_create(instance=kmodet)
 
@@ -325,23 +326,17 @@ def edit_kmo_det(request, kmodet_id):
     kmodet = get_object_or_404(Kmodet, id=kmodet_id)
     if kmodet.idkmo.approved:
         return HttpResponseRedirect(f'/view_kmo_det/{kmodet_id}')
-    kmo_main = Kmodet.objects.filter(id=kmodet_id).values('idkmo').first()
-    print('=====================================', kmo_main)
     if request.method == 'POST':
         edit_form = KMOdetForm_create(request.POST, request.FILES, instance=kmodet)
-        # print('============= BEFORE  is_valid  ========================')
         pprint(edit_form)
-        # print('============= AFTER  is_valid  ========================')
         if edit_form.is_valid():
-            # print('=============   is_valid  ========================')
             edit_form.instance.s_update_user = request.user.username
             edit_form.save()
-            # return redirect('edit_kmo', edit_form.instance.id)
-            return redirect(f"/edit_kmo/{kmo_main['idkmo']}")
+            return redirect(f"/edit_kmo/{kmodet.idkmo.pk}")
     else:
         edit_kmodet_form = KMOdetForm_create(instance=kmodet)
         depart = edit_kmodet_form.instance.iddepartment
-        header_KMO_data = Kmo.objects.get(id=kmo_main['idkmo'])
+        header_KMO_data = Kmo.objects.get(id=kmodet.idkmo.pk)
         content = {'title_view': 'Редактирование неисправности',
                    'edit_kmodet_form': edit_kmodet_form,
                    # 'form_create_kmodet': edit_kmodet_form,
@@ -393,7 +388,7 @@ def index_qr(request):
     qr_image = False
     if request.method == "POST":
         data = request.POST['data']
-        data = f'https://gpt-connect.ru/view_kmodet_by_qr/{'stp'}/{3}'
+        # data = f'https://gpt-connect.ru/view_kmodet_by_qr/{'stp'}/{3}'
         img = make_qr(data)
         img.save("media/qr/test.png")
         qr_image = True
