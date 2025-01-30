@@ -8,9 +8,44 @@
     <title>{% block title %}{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <style>
+        @media (max-width: 426px) {
+            .chained-fk {
+                width: 260px !important;
+            }
+        }
       .nav-link.active {
         background-color: #cfe2ff !important;
       }
+      .chained-fk {
+        --bs-form-select-bg-img: url(data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e);
+        display: block;
+        width: 330px;
+        padding: .375rem 2.25rem .375rem .75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: var(--bs-body-color);
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-color: var(--bs-body-bg);
+        background-image: url("{% static 'img/input.svg' %}");
+        background-repeat: no-repeat;
+        background-position: right .75rem center;
+        background-size: 16px 12px;
+        border: var(--bs-border-width) solid var(--bs-border-color);
+        border-radius: var(--bs-border-radius);
+        transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+        }
+        .chained-fk:disabled {
+            background-color: var(--bs-secondary-bg);
+        }
+        .defect {
+            max-width: 420px;
+        }
+        .defect-bold {
+            font-weight: 500;
+        }
     </style>
 
   </head>
@@ -105,6 +140,54 @@
             }
             totalForms.setAttribute('value', `${formNum+1}`)
         }
+    </script>
+    <script>
+        let idrwstation = document.querySelector('#id_idrwstation');
+        let idrwstage = document.querySelector('#id_idrwstage');
+        let idrwway = document.querySelector('#id_idrwway');
+        let idrwsp = document.querySelector('#id_idrwsp');
+        let idrwkilometr = document.querySelector('#id_idrwkilometr');
+        let RW_picket = document.querySelector('#id_RW_picket');
+        let RW_unit = document.querySelector('#id_RW_unit');
+
+        idrwstation.addEventListener('change', () => {
+            idrwstage.disabled = true;
+            if (idrwstation.value == '') {
+                idrwstage.disabled = false;
+            }
+
+        });
+        idrwstage.addEventListener('change', () => {
+            idrwstation.disabled = true;
+            if (idrwstage.value == '') {
+                idrwstation.disabled = false;
+            }
+
+        });
+        idrwway.addEventListener('change', () => {
+            idrwsp.disabled = true;
+            if (idrwway.value == '') {
+                idrwsp.disabled = false;
+            }
+
+        });
+        idrwsp.addEventListener('change', () => {
+            idrwway.options[0].selected = true;
+            idrwway.disabled = true;
+            idrwkilometr.options[0].selected = true;
+            idrwkilometr.disabled = true;
+            RW_picket.options[0].selected = true;
+            RW_picket.disabled = true;
+            RW_unit.options[0].selected = true;
+            RW_unit.disabled = true;
+            if (idrwsp.value == '') {
+                idrwway.disabled = false;
+                idrwkilometr.disabled = false;
+                RW_picket.disabled = false;
+                RW_unit.disabled = false;
+            }
+
+        });
     </script>
   </body>
 </html>

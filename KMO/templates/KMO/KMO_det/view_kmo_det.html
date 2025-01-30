@@ -56,27 +56,51 @@
                     </tr>
                     <tr>
                       <td scope="row">Перегон</td>
-                      <td>{{ view_kmodet.idrwstage }}</td>
+                        {% if view_kmodet.idrwstage %}
+                        <td>{{ view_kmodet.idrwstage }}</td>
+                        {% else %}
+                        <td>---</td>
+                        {% endif %}
                     </tr>
                     <tr>
                       <td scope="row">Путь</td>
-                      <td>{{ view_kmodet.idrwway }}</td>
+                        {% if view_kmodet.idrwway %}
+                        <td>{{ view_kmodet.idrwway }}</td>
+                        {% else %}
+                        <td>---</td>
+                        {% endif %}
                     </tr>
                     <tr>
                       <td scope="row">Стрелочный перевод</td>
-                      <td>{{ view_kmodet.idrwsp }}</td>
+                        {% if view_kmodet.idrwsp %}
+                        <td>{{ view_kmodet.idrwsp }}</td>
+                        {% else %}
+                        <td>---</td>
+                        {% endif %}
                     </tr>
                     <tr>
                       <td scope="row">Километр</td>
-                      <td>{{ view_kmodet.idrwkilometr }}</td>
+                        {% if view_kmodet.idrwkilometr %}
+                        <td>{{ view_kmodet.idrwkilometr }}</td>
+                        {% else %}
+                        <td>---</td>
+                        {% endif %}
                     </tr>
                   <tr>
                       <td scope="row">Пикет</td>
-                      <td>{{ view_kmodet.RW_picket }}</td>
+                      {% if view_kmodet.RW_picket %}
+                        <td>{{ view_kmodet.RW_picket }}</td>
+                        {% else %}
+                        <td>---</td>
+                        {% endif %}
                     </tr>
                   <tr>
                       <td scope="row">Звено</td>
-                      <td>{{ view_kmodet.RW_unit }}</td>
+                      {% if view_kmodet.RW_unit %}
+                        <td>{{ view_kmodet.RW_unit }}</td>
+                        {% else %}
+                        <td>---</td>
+                        {% endif %}
                     </tr>
                   <tr>
                       <td scope="row">Нитка</td>
@@ -91,19 +115,19 @@
                   <tbody>
                     <tr>
                       <td >Обект осмотра</td>
-                      <td>{{ view_kmodet.idBs_Obj_insp }}</td>
+                      <td class="defect-bold">{{ view_kmodet.idBs_Obj_insp }}</td>
                     </tr>
                     <tr>
                       <td scope="row">Элемент</td>
-                      <td>{{ view_kmodet.idBs_RW_element }}</td>
+                      <td class="defect-bold">{{ view_kmodet.idBs_RW_element }}</td>
                     </tr>
                     <tr>
                       <td scope="row">Группа неисправности</td>
-                      <td>{{ view_kmodet.idBs_RW_defect_gr }}</td>
+                      <td class="defect-bold">{{ view_kmodet.idBs_RW_defect_gr }}</td>
                     </tr>
                     <tr>
                       <td scope="row">Неисправность</td>
-                      <td>{{ view_kmodet.idBs_RW_defect_tp }}</td>
+                      <td class="defect-bold">{{ view_kmodet.idBs_RW_defect_tp }}</td>
                     </tr>
                     <tr>
                       <td scope="row">Срок устранения</td>
@@ -111,11 +135,15 @@
                     </tr>
                     <tr>
                       <td scope="row">Срок устранения изменить</td>
-                      <td>{{ view_kmodet.date_elimination_edit }}</td>
+                        {% if view_kmodet.date_elimination_edit %}
+                        <td>{{ view_kmodet.date_elimination_edit }}</td>
+                        {% else %}
+                        <td>---</td>
+                        {% endif %}
                     </tr>
                     <tr>
                       <td scope="row">Величина неисправности</td>
-                      <td>{{ view_kmodet.RW_size_def }}</td>
+                      <td class="defect-bold">{{ view_kmodet.RW_size_def }}</td>
                     </tr>
                   <tr>
                       <td scope="row">Устранено</td>
@@ -123,7 +151,11 @@
                     </tr>
                   <tr>
                       <td scope="row">Комментарий</td>
-                      <td>{{ view_kmodet.comment }}</td>
+                        {% if view_kmodet.comment %}
+                        <td>{{ view_kmodet.comment }}</td>
+                        {% else %}
+                        <td>---</td>
+                        {% endif %}
                     </tr>
                   <tr>
                       <td scope="row">Ответственный</td>

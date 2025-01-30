@@ -133,6 +133,10 @@ class Bs_RWsp(models.Model):
     s_mnemocode = models.CharField('мнемокод', max_length=10, blank=True, null=True)
     s_name = models.CharField('Стрелочный перевод', max_length=8)
     idrwstation = models.ForeignKey(Bs_RWStation, on_delete=models.SET_NULL, verbose_name='Станция', null=True)
+    manag_method = models.CharField('Способ управления', max_length=15, default="Неопределенно")
+    type_rail = models.CharField('Тип рельсов', max_length=8, default="Неопределенно")
+    mark_crossp = models.CharField('Марка крестовины', max_length=8, default="Неопределенно")
+    view_conversion = models.CharField('Вид перевода', max_length=20, default="Неопределенно")
     s_create_user = models.CharField('Создатель', max_length=25)
     created_at = models.DateTimeField('Дата создания', auto_now_add=True, editable=False)
     s_update_user = models.CharField('Изменивший', max_length=25, null=True, blank=True)
@@ -140,7 +144,7 @@ class Bs_RWsp(models.Model):
     not_used = models.BooleanField('Недействующий', default=False)
 
     def __str__(self):
-        return str(self.s_name) + '(' + str(self.idrwstation) + ')'
+        return str(self.s_name) + ' ' + str(self.mark_crossp)
 
     class Meta:
         verbose_name = 'Стрелочный перевод'
@@ -148,12 +152,12 @@ class Bs_RWsp(models.Model):
 
 # 1 столбец
 class Bs_Obj_insp(models.Model):
-    s_mnemocode = models.CharField('мнемокод', max_length=10)
-    s_name = models.CharField('Объекты  осмотра', max_length=30)
+    s_mnemocode = models.CharField('мнемокод', max_length=12)
+    s_name = models.CharField('Объекты  осмотра', max_length=40)
     iddepartment = models.ForeignKey(Bs_department, on_delete=models.SET_NULL, verbose_name='Служба', null=True)
-    s_create_user = models.CharField('Создатель', max_length=25)
+    s_create_user = models.CharField('Создатель', max_length=35)
     created_at = models.DateTimeField('Дата создания', auto_now_add=True, editable=False)
-    s_update_user = models.CharField('Изменивший', max_length=25, null=True, blank=True)
+    s_update_user = models.CharField('Изменивший', max_length=35, null=True, blank=True)
     updated_at = models.DateTimeField('Дата изменения', auto_now=True, editable=False)
     not_used = models.BooleanField('Недействующий', default=False)
 
@@ -167,12 +171,12 @@ class Bs_Obj_insp(models.Model):
 
 # 2 столбец
 class Bs_RW_element(models.Model):
-    s_mnemocode = models.CharField('мнемокод', max_length=10)
-    s_name = models.CharField('Элемент осмотра', max_length=30)
+    s_mnemocode = models.CharField('мнемокод', max_length=12)
+    s_name = models.CharField('Элемент осмотра', max_length=40)
     id_obj_insp = models.ForeignKey(Bs_Obj_insp, on_delete=models.CASCADE, verbose_name='Объект осмотра')
-    s_create_user = models.CharField('Создатель', max_length=25)
+    s_create_user = models.CharField('Создатель', max_length=35)
     created_at = models.DateTimeField('Дата создания', auto_now_add=True, editable=False)
-    s_update_user = models.CharField('Изменивший', max_length=25, null=True, blank=True)
+    s_update_user = models.CharField('Изменивший', max_length=35, null=True, blank=True)
     updated_at = models.DateTimeField('Дата изменения', auto_now=True, editable=False)
     not_used = models.BooleanField('Недействующий', default=False)
 
@@ -186,12 +190,12 @@ class Bs_RW_element(models.Model):
 
 # 3 столбец
 class Bs_RW_defect_gr(models.Model):
-    s_mnemocode = models.CharField('мнемокод', max_length=10)
-    s_name = models.CharField('Группа Неисправности', max_length=100)
+    s_mnemocode = models.CharField('мнемокод', max_length=12)
+    s_name = models.CharField('Группа Неисправности', max_length=250)
     id_rw_element = models.ForeignKey(Bs_RW_element, on_delete=models.CASCADE, verbose_name='Элемент осмотра')
-    s_create_user = models.CharField('Создатель', max_length=25)
+    s_create_user = models.CharField('Создатель', max_length=35)
     created_at = models.DateTimeField('Дата создания', auto_now_add=True, editable=False)
-    s_update_user = models.CharField('Изменивший', max_length=25, null=True, blank=True)
+    s_update_user = models.CharField('Изменивший', max_length=35, null=True, blank=True)
     updated_at = models.DateTimeField('Дата изменения', auto_now=True, editable=False)
     not_used = models.BooleanField('Недействующий', default=False)
 
@@ -206,18 +210,18 @@ class Bs_RW_defect_gr(models.Model):
 class Bs_RW_defect_tp(models.Model):
     s_mnemocode = models.CharField('мнемокод', max_length=10)
     id_RW_defect_gr = models.ForeignKey(Bs_RW_defect_gr, on_delete=models.CASCADE, verbose_name='Группа Неисправности')
-    s_name = models.CharField('Вид неисправности', max_length=150)
-    s_deviation_interval = models.CharField('Интервал отклонения', max_length=5, null=True)
-    s_deviation_interval_dop = models.CharField('Интервал отклонения_2', max_length=5, null=True)
-    d_deadline = models.CharField('Крайний срок (в днях)', max_length=3, null=True)
+    s_name = models.CharField('Вид неисправности', max_length=350)
+    s_deviation_interval = models.CharField('Интервал отклонения', max_length=15, null=True, blank=True)
+    s_deviation_interval_dop = models.CharField('Интервал отклонения_2', max_length=15, null=True, blank=True)
+    d_deadline = models.CharField('Крайний срок (в днях)', max_length=10, null=True)
     s_measurement = models.CharField('Единица измерения',
-                                     max_length=3, null=True)  # сделать потом отдельный справочник по единицам измерения
-    n_speed_limit = models.IntegerField('Ограничение скорости', null=True)
-    s_create_user = models.CharField('Создатель', max_length=25, null=True)
+                                     max_length=10, null=True, blank=True)  # сделать потом отдельный справочник по единицам измерения
+    n_speed_limit = models.CharField('Ограничение скорости', max_length=5, null=True, blank=True)
+    s_create_user = models.CharField('Создатель', max_length=25, null=True, blank=True)
     created_at = models.DateTimeField('Дата создания', auto_now_add=True, editable=False)
     s_update_user = models.CharField('Изменивший', max_length=25, null=True, blank=True)
     updated_at = models.DateTimeField('Дата изменения', auto_now=True, editable=False)
-    not_used = models.BooleanField('Недействующий', default=False, null=True)
+    not_used = models.BooleanField('Недействующий', default=False, null=True, blank=True)
 
     def __str__(self):
         return self.s_name
