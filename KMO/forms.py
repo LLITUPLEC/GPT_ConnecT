@@ -104,13 +104,14 @@ class KMOForm_edit(ModelForm):
         super().__init__(*args, **kwargs)
         # iddepown = Bs_depowner.objects.filter(s_name=self.instance.iddepowner).first()
         self.fields['idprofile'].queryset = Profile.objects.filter(chairman=True, iddepowner=self.instance.iddepowner)
+
     class Meta:
         model = Kmo
-        fields = [  #"iddepowner",
+        fields = [  # "iddepowner",
             # "user_creator",
             "s_update_user",
-            #"n_regnumber",
-            #"date_detection",
+            # "n_regnumber",
+            # "date_detection",
             "idprofile",
         ]
 
@@ -120,7 +121,6 @@ class KMOForm_edit(ModelForm):
     #                               widget=Select(attrs={'class': 'form-select', 'placeholder': 'выберите филиал'}))
     idprofile = ModelChoiceField(queryset=Profile.objects.filter(chairman=True), required=False,
                                  widget=Select(attrs={'class': 'form-select', 'placeholder': 'укажите председателя'}))
-
 
 
 Kmo_membersFormSet = modelformset_factory(
@@ -224,7 +224,8 @@ class KMOdetForm_create(ModelForm):
         super().__init__(*args, **kwargs)
         iddepown = Bs_depowner.objects.filter(s_name=self.instance.iddepowner).first()
         self.fields['idrwstation'].queryset = Bs_RWStation.objects.filter(iddepowner=iddepown)
-        self.fields['idresponsible'].queryset = Kmo_responsible.objects.filter(iddepowner=iddepown, iddepartment=self.instance.iddepartment)
+        self.fields['idresponsible'].queryset = Kmo_responsible.objects.filter(iddepowner=iddepown,
+                                                                               iddepartment=self.instance.iddepartment)
 
     class Meta:
         model = Kmodet
@@ -285,11 +286,14 @@ class KMOdetForm_create(ModelForm):
         }
 
     RW_picket = ChoiceField(choices=picket_CHOICES,
-                            widget=Select(attrs={'class': 'form-control', 'placeholder': 'укажите пикет'}))
+                            widget=Select(attrs={'class': 'form-control', 'placeholder': 'укажите пикет'}),
+                            required=False)
     RW_unit = ChoiceField(choices=zveno_CHOICES,
-                          widget=Select(attrs={'class': 'form-control', 'placeholder': 'укажите звено'}))
+                          widget=Select(attrs={'class': 'form-control', 'placeholder': 'укажите звено'}),
+                          required=False)
     RW_thread = ChoiceField(choices=thread_CHOICES,
-                            widget=Select(attrs={'class': 'form-control', 'placeholder': 'укажите ветку'}))
+                            widget=Select(attrs={'class': 'form-control', 'placeholder': 'укажите ветку'}),
+                            required=False)
     # RW_thread = ChoiceField(choices=thread_CHOICES, widget=RadioSelect)
 
     idrwstation = ModelChoiceField(queryset=Bs_RWStation.objects.all(),
@@ -305,7 +309,7 @@ class KMOdetForm_create(ModelForm):
         chained_model_field="idrwstation",
         show_all=False,
         auto_choose=True,
-        sort=True,
+        sort=True, null=True, blank=True
     )
     # idrwsp = ModelChoiceField(queryset=Bs_RWsp.objects.all(),
     #                              widget=Select(attrs={'class': 'form-select', 'placeholder': 'укажите стр.перевод'}))
@@ -314,9 +318,10 @@ class KMOdetForm_create(ModelForm):
         chained_model_field="idrwsp",
         show_all=False,
         auto_choose=True,
-        sort=True)
+        sort=True, null=True, blank=True)
     idrwkilometr = ModelChoiceField(queryset=Bs_RWkilometr.objects.all(),
-                                    widget=Select(attrs={'class': 'form-select', 'placeholder': 'укажите км'}))
+                                    widget=Select(attrs={'class': 'form-select', 'placeholder': 'укажите км'}),
+                                    required=False)
 
     # idBs_Obj_insp = ModelChoiceField(queryset=Bs_Obj_insp.objects.all(),
     #                                  widget=Select(attrs={'class': 'form-select'}))
@@ -335,12 +340,17 @@ class KMOdetForm_create(ModelForm):
     # idBs_RW_defect_gr = ModelChoiceField(queryset=Bs_RW_defect_gr.objects.all(),
     #                                      widget=Select(attrs={'class': 'form-select'}))
     idBs_RW_defect_gr = ChainedForeignKey(Bs_RW_defect_gr, chained_field="idBs_RW_element",
-                                        chained_model_field="id_rw_element",
-                                        show_all=False,
-                                        auto_choose=True,
-                                        sort=True)
-    idBs_RW_defect_tp = ModelChoiceField(queryset=Bs_RW_defect_tp.objects.all(),
-                                         widget=Select(attrs={'class': 'form-select'}))
+                                          chained_model_field="id_rw_element",
+                                          show_all=False,
+                                          auto_choose=True,
+                                          sort=True)
+    # idBs_RW_defect_tp = ModelChoiceField(queryset=Bs_RW_defect_tp.objects.all(),
+    #                                      widget=Select(attrs={'class': 'form-select'}))
+    idBs_RW_defect_tp = ChainedForeignKey(Bs_RW_defect_tp, chained_field="idBs_RW_defect_gr",
+                                          chained_model_field="id_RW_defect_gr",
+                                          show_all=False,
+                                          auto_choose=True,
+                                          sort=True)
     idresponsible = ModelChoiceField(queryset=Kmo_responsible.objects.all(),
                                      widget=Select(
                                          attrs={'class': 'form-select', 'placeholder': 'выберите ответственного'}))
@@ -406,11 +416,14 @@ class KMOdetForm_edit(ModelForm):
         }
 
     RW_picket = ChoiceField(choices=picket_CHOICES,
-                            widget=Select(attrs={'class': 'form-control', 'placeholder': 'укажите пикет'}))
+                            widget=Select(attrs={'class': 'form-control', 'placeholder': 'укажите пикет'}),
+                            required=False)
     RW_unit = ChoiceField(choices=zveno_CHOICES,
-                          widget=Select(attrs={'class': 'form-control', 'placeholder': 'укажите звено'}))
+                          widget=Select(attrs={'class': 'form-control', 'placeholder': 'укажите звено'}),
+                          required=False)
     RW_thread = ChoiceField(choices=thread_CHOICES,
-                            widget=Select(attrs={'class': 'form-control', 'placeholder': 'укажите ветку'}))
+                            widget=Select(attrs={'class': 'form-control', 'placeholder': 'укажите ветку'}),
+                            required=False)
     # RW_thread = ChoiceField(choices=thread_CHOICES, widget=RadioSelect)
 
     idrwstation = ModelChoiceField(queryset=Bs_RWStation.objects.all(),
@@ -426,12 +439,14 @@ class KMOdetForm_edit(ModelForm):
         chained_model_field="idrwstation",
         show_all=False,
         auto_choose=True,
-        sort=True,
+        sort=True, null=True, blank=True
     )
     idrwsp = ModelChoiceField(queryset=Bs_RWsp.objects.all(),
-                              widget=Select(attrs={'class': 'form-select', 'placeholder': 'укажите стр.перевод'}))
+                              widget=Select(attrs={'class': 'form-select', 'placeholder': 'укажите стр.перевод'}),
+                              required=False)
     idrwkilometr = ModelChoiceField(queryset=Bs_RWkilometr.objects.all(),
-                                    widget=Select(attrs={'class': 'form-select', 'placeholder': 'укажите км'}))
+                                    widget=Select(attrs={'class': 'form-select', 'placeholder': 'укажите км'}),
+                                    required=False)
 
     # idBs_Obj_insp = ModelChoiceField(queryset=Bs_Obj_insp.objects.all(),
     #                                  widget=Select(attrs={'class': 'form-select'}))
@@ -447,10 +462,20 @@ class KMOdetForm_edit(ModelForm):
                                         show_all=False,
                                         auto_choose=True,
                                         sort=True)
-    idBs_RW_defect_gr = ModelChoiceField(queryset=Bs_RW_defect_gr.objects.all(),
-                                         widget=Select(attrs={'class': 'form-select'}))
-    idBs_RW_defect_tp = ModelChoiceField(queryset=Bs_RW_defect_tp.objects.all(),
-                                         widget=Select(attrs={'class': 'form-select'}))
+    # idBs_RW_defect_gr = ModelChoiceField(queryset=Bs_RW_defect_gr.objects.all(),
+    #                                      widget=Select(attrs={'class': 'form-select'}))
+    idBs_RW_defect_gr = ChainedForeignKey(Bs_RW_defect_gr, chained_field="idBs_RW_element",
+                                          chained_model_field="id_rw_element",
+                                          show_all=False,
+                                          auto_choose=True,
+                                          sort=True)
+    # idBs_RW_defect_tp = ModelChoiceField(queryset=Bs_RW_defect_tp.objects.all(),
+    #                                      widget=Select(attrs={'class': 'form-select'}))
+    idBs_RW_defect_tp = ChainedForeignKey(Bs_RW_defect_tp, chained_field="idBs_RW_defect_gr",
+                                          chained_model_field="id_RW_defect_gr",
+                                          show_all=False,
+                                          auto_choose=True,
+                                          sort=True)
     idresponsible = ModelChoiceField(queryset=Kmo_responsible.objects.all(),
                                      widget=Select(
                                          attrs={'class': 'form-select', 'placeholder': 'выберите ответственного'}))

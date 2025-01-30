@@ -166,7 +166,7 @@ class Command(BaseCommand):
             #       res_gr['Неисправности или отклонения  от норм содержания (группы)'][idx_data_sp])
 
             try:
-                el_insp = Bs_RW_defect_gr(
+                gr_insp = Bs_RW_defect_gr(
                     s_name=res_gr['Неисправности или отклонения  от норм содержания (группы)'][idx_data_sp],
                     s_mnemocode=f'gr_{idx_data_sp}',
                     s_create_user='auto_fill',
@@ -174,36 +174,43 @@ class Command(BaseCommand):
                         s_name=res_gr['Осматриваемые элементы и характеристики'][idx_data_sp],
                         id_obj_insp=Bs_Obj_insp.objects.get(s_name=res_gr['Объекты осмотра'][idx_data_sp])),
                     not_used=0)
-                el_insp.save()
+                gr_insp.save()
             except Exception as e:
                 print(f"Exception occurred for value BEGIN_ 'элементы' осмотра'" + "': " + repr(e))
         # ==============================================================================================================
         # =====-----------------Виды осмотра (сама неисправность)---====================================================
         # ==============================================================================================================
-        # count = 1
-        # res_tp = (get_data.groupby(['Объекты осмотра',
-        #                             'Осматриваемые элементы и характеристики',
-        #                             'Неисправности или отклонения  от норм содержания (группы)'])
-        #           ['Неисправности или отклонения  от норм содержания (виды)']
-        #           .apply(lambda x: list(x.values))
-        #           .reset_index(name='info'))
-        # for idx_data_sp1 in res_tp.index:
-        #     print(count, ' : ', res_tp['Объекты осмотра'][idx_data_sp1], ' -> ',
-        #           res_tp['Осматриваемые элементы и характеристики'][idx_data_sp1], ' => ',
-        #           res_tp['Неисправности или отклонения  от норм содержания (группы)'][idx_data_sp1])
-        #     count += 1
-            # try:
-            #     tp_insp = Bs_RW_defect_gr(
-            #         s_name=res_gr['Неисправности или отклонения  от норм содержания (группы)'][idx_data_sp],
-            #         s_mnemocode=f'gr_{idx_data_sp}',
-            #         s_create_user='auto_fill',
-            #         id_rw_element=Bs_RW_element.objects.get(
-            #             s_name=res_tp['Осматриваемые элементы и характеристики'][idx_data_sp],
-            #             id_obj_insp=Bs_Obj_insp.objects.get(s_name=res_tp['Объекты осмотра'][idx_data_sp])),
-            #         not_used=0)
-            #     tp_insp.save()
-            # except Exception as e:
-            #     print(f"Exception occurred for value BEGIN_ 'элементы' осмотра'" + "': " + repr(e))
+        get_data = get_data.fillna('-')
+
+        count = 1
+        for idx_data_sp in get_data.index:
+            print(count, ' : ',
+                  get_data['Неисправности или отклонения  от норм содержания (виды)'][idx_data_sp], ' => ',
+                  get_data['Интервал отклонения'][idx_data_sp], get_data['Интервал отклонения2'][idx_data_sp],
+                  get_data['Крайний срок (в днях)'][idx_data_sp], get_data['Единица измерения'][idx_data_sp],
+                  get_data['Ограничение скорости'][idx_data_sp]
+                  )
+
+            count += 1
+            try:
+                type_insp = Bs_RW_defect_tp(
+                    s_name=get_data['Неисправности или отклонения  от норм содержания (виды)'][idx_data_sp],  # ++
+                    s_mnemocode=f'type_{idx_data_sp}',
+                    s_create_user='auto_fill',
+                    id_RW_defect_gr=Bs_RW_defect_gr.objects.get(
+                        s_name=get_data['Неисправности или отклонения  от норм содержания (группы)'][idx_data_sp],
+                        id_rw_element=Bs_RW_element.objects.get(s_name=get_data['Осматриваемые элементы и характеристики'][idx_data_sp],
+                                                                id_obj_insp=Bs_Obj_insp.objects.get(s_name=get_data['Объекты осмотра'][idx_data_sp]))
+                    ),
+                    s_deviation_interval=get_data['Интервал отклонения'][idx_data_sp],
+                    s_deviation_interval_dop=get_data['Интервал отклонения2'][idx_data_sp],
+                    d_deadline=get_data['Крайний срок (в днях)'][idx_data_sp],
+                    s_measurement=get_data['Единица измерения'][idx_data_sp],
+                    n_speed_limit=get_data['Ограничение скорости'][idx_data_sp],
+                    not_used=0)
+                type_insp.save()
+            except Exception as e:
+                print(f"Exception occurred for value BEGIN_ 'элементы' осмотра'" + "': " + repr(e))
 
         # END_ НЕИСПРАВНОСТИ      СП------------------------------------------------------------------------------------
 
