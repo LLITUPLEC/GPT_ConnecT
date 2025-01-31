@@ -8,18 +8,18 @@
     <title>{% block title %}{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <style>
-        @media (max-width: 426px) {
-            .chained-fk {
-                width: 260px !important;
-            }
-        }
+<!--        @media (max-width: 426px) {-->
+<!--            .chained-fk {-->
+<!--                width: 260px;-->
+<!--            }-->
+<!--        }-->
       .nav-link.active {
         background-color: #cfe2ff !important;
       }
       .chained-fk {
         --bs-form-select-bg-img: url(data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e);
         display: block;
-        width: 330px;
+        width: 100%;
         padding: .375rem 2.25rem .375rem .75rem;
         font-size: 1rem;
         font-weight: 400;
@@ -41,10 +41,14 @@
             background-color: var(--bs-secondary-bg);
         }
         .defect {
-            max-width: 420px;
+            max-width: 460px;
         }
         .defect-bold {
             font-weight: 500;
+        }
+        #id_idresponsible {
+
+            max-width: 340px;
         }
     </style>
 
@@ -149,6 +153,22 @@
         let idrwkilometr = document.querySelector('#id_idrwkilometr');
         let RW_picket = document.querySelector('#id_RW_picket');
         let RW_unit = document.querySelector('#id_RW_unit');
+
+        if (idrwstation.value != '') {
+                idrwstage.disabled = true;
+            }
+        if (idrwstage.value != '') {
+                idrwstation.disabled = true;
+            }
+        if (idrwway.value != '') {
+                idrwsp.disabled = true;
+            }
+        if (idrwsp.value != '') {
+                idrwway.disabled = true;
+                idrwkilometr.disabled = true;
+                RW_picket.disabled = true;
+                RW_unit.disabled = true;
+            }
 
         idrwstation.addEventListener('change', () => {
             idrwstage.disabled = true;

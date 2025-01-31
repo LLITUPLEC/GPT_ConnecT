@@ -173,6 +173,7 @@ def edit_kmo(request, kmo_id):
         form_add_members = Kmo_membersFormSet(queryset=Kmo_members.objects.none())
 
         data_kmodet_sp = Kmodet.objects.filter(idkmo=kmo_id, iddepartment=Bs_department.objects.get(s_name='СП'))
+        data_kmodet_scb = Kmodet.objects.filter(idkmo=kmo_id, iddepartment=Bs_department.objects.get(s_name='СЦБ'))
         data_kmodet_count_all = Kmodet.objects.filter(idkmo=kmo_id).count()
         data_kmodet_count_overdue = Kmodet.objects.filter(idkmo=kmo_id, date_elimination__lt=datetime.now().date(),
                                                           eliminated=0).count()
@@ -184,6 +185,7 @@ def edit_kmo(request, kmo_id):
                    'form_add_members': form_add_members,
                    'id_kmo_edit': kmo_id,
                    'data_kmodet_sp': data_kmodet_sp,
+                   'data_kmodet_scb': data_kmodet_scb,
                    'data_kmodet_all': {
                        'kmodet_all_count': data_kmodet_count_all,
                        'kmodet_count_overdue': data_kmodet_count_overdue,
@@ -202,6 +204,7 @@ def view_kmo(request, kmo_id):
     form_members = Kmo_members.objects.filter(idkmo=kmo_id)
     kmo_data = Kmo.objects.get(id=kmo_id)
     data_kmodet_sp = Kmodet.objects.filter(idkmo=kmo_id, iddepartment=Bs_department.objects.get(s_name='СП'))
+    data_kmodet_scb = Kmodet.objects.filter(idkmo=kmo_id, iddepartment=Bs_department.objects.get(s_name='СЦБ'))
     data_kmodet_count_all = Kmodet.objects.filter(idkmo=kmo_id).count()
     data_kmodet_count_overdue = Kmodet.objects.filter(idkmo=kmo_id, date_elimination__lt=datetime.now().date(),
                                                       eliminated=0).count()
@@ -214,6 +217,7 @@ def view_kmo(request, kmo_id):
                'form_members': form_members,
                'id_kmo_edit': kmo_id,
                'data_kmodet_sp': data_kmodet_sp,
+               'data_kmodet_scb': data_kmodet_scb,
                'data_kmodet_all': {
                    'kmodet_all_count': data_kmodet_count_all,
                    'kmodet_count_overdue': data_kmodet_count_overdue,

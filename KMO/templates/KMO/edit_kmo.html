@@ -73,7 +73,7 @@
                         <button class="nav-link active" id="nav-members-tab" data-bs-toggle="tab" data-bs-target="#nav-members" type="button" role="tab" aria-controls="nav-members" aria-selected="true">Члены Комиссии</button>
                         <button class="nav-link" id="nav-SP-tab" data-bs-toggle="tab" data-bs-target="#nav-SP" type="button" role="tab" aria-controls="nav-SP" aria-selected="false">Служба СП</button>
                         <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">Служба СЦБ</button>
-                        <button class="nav-link" id="nav-contact1-tab" data-bs-toggle="tab" data-bs-target="#nav-contact1" type="button" role="tab" aria-controls="nav-contact1" aria-selected="false">Служба СПиМР</button>
+<!--                        <button class="nav-link" id="nav-contact1-tab" data-bs-toggle="tab" data-bs-target="#nav-contact1" type="button" role="tab" aria-controls="nav-contact1" aria-selected="false">Служба СПиМР</button>-->
                       </div>
                     </nav>
                     <div class="tab-content" id="nav-tabContent">
@@ -106,7 +106,7 @@
                             </tbody>
 
                           </table>
-                          <button id="add-form" type="button">Добавить ещё одного</button>
+                          <button id="add-form" type="button">Добавить</button>
 
 
 
@@ -140,10 +140,18 @@
                                             <a class="btn btn-sm btn-outline-secondary" href="{% url 'delete_kmo_det' kmodet_sp.id  %}"><img src="{% static 'icons/delete.svg' %}" style="width: 16px"></a>
                                         </div>
                                     </th>
-                                    <td>{{kmodet_sp.id}} {{kmodet_sp.date_detection}}</td>
+                                    <td>{{kmodet_sp.date_detection}}</td>
                                     <td>{{kmodet_sp.idrwstation}}</td>
-                                    <td>{{kmodet_sp.idrwway}}</td>
-                                    <td>{{kmodet_sp.idrwsp}}</td>
+                                    {% if kmodet_sp.idrwway %}
+                                    <td>{{ kmodet_sp.idrwway }}</td>
+                                    {% else %}
+                                    <td>---</td>
+                                    {% endif %}
+                                    {% if kmodet_sp.idrwsp %}
+                                    <td>{{ kmodet_sp.idrwsp }}</td>
+                                    {% else %}
+                                    <td>---</td>
+                                    {% endif %}
                                     <td>{{kmodet_sp.idBs_RW_defect_tp}}</td>
                                     <td>{{kmodet_sp.RW_size_def}}</td>
                                     <td>20</td>
@@ -160,8 +168,63 @@
                             </tbody>
                           </table>
                       </div>
-                      <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">Это некий заполнитель содержимого, связанного с содержимым вкладки "Главная". Щелчок по другой вкладке переключает видимость этой на следующую. Вкладка JavaScript меняет местами классы для управления видимостью и стилем содержимого. Вы можете использовать его с вкладками, таблетками и любой другой навигацией с поддержкой .nav.</div>
-                      <div class="tab-pane fade" id="nav-contact1" role="tabpanel" aria-labelledby="nav-contact-tab">Это некий заполнитель содержимого, связанного с содержимым вкладки "Главная". Щелчок по другой вкладке переключает видимость этой на следующую. Вкладка JavaScript меняет местами классы для управления видимостью и стилем содержимого. Вы можете использовать его с вкладками, таблетками и любой другой навигацией с поддержкой .nav.</div>
+                      <div class="tab-pane fade table-responsive" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
+                          <a class="btn btn-primary btn-sm" href="{% url 'create_kmo_det' id_kmo_edit 4 %}" role="button" style="margin: 10px 15px;">Создать замечание</a>
+                          <table class="table table-striped table-bordered table-hover">
+                            <thead class="table-primary">
+                              <tr>
+                                <th scope="col">Опер-ии</th>
+                                <th scope="col">Дата проведения</th>
+                                <th scope="col">Станция</th>
+                                <th scope="col">№ Пути</th>
+                                <th scope="col">№ стр.перевода</th>
+                                <th scope="col">Неисправность</th>
+                                <th scope="col">Величина</th>
+                                <th scope="col">Ограничение скорости</th>
+                                <th scope="col">Дата устранения</th>
+                                <th scope="col">Ответственный</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% if data_kmodet_scb %}
+                                {% for kmodet_scb in data_kmodet_scb %}
+                                  <tr class="table-{% if kmodet_scb.eliminated == 1 %}success{% elif kmodet_scb.eliminated == 0 and kmodet_scb.date_elimination < data_kmodet_all.datenow %}danger{% else %}light{% endif %}">
+                                    <th scope="row">
+                                        <div class="btn-group">
+                                            <a class="btn btn-sm btn-outline-secondary" href="{% url 'view_kmo_det' kmodet_scb.id %}"><img src="{% static 'icons/view_2.svg' %}" style="width: 16px"></a>
+                                            <a class="btn btn-sm btn-outline-secondary" href="{% url 'edit_kmo_det' kmodet_scb.id  %}"><img src="{% static 'icons/edit.svg' %}" style="width: 16px"></a>
+                                            <a class="btn btn-sm btn-outline-secondary" href="{% url 'delete_kmo_det' kmodet_scb.id  %}"><img src="{% static 'icons/delete.svg' %}" style="width: 16px"></a>
+                                        </div>
+                                    </th>
+                                    <td>{{kmodet_scb.date_detection}}</td>
+                                    <td>{{kmodet_scb.idrwstation}}</td>
+                                    {% if kmodet_scb.idrwway %}
+                                    <td>{{ kmodet_scb.idrwway }}</td>
+                                    {% else %}
+                                    <td>---</td>
+                                    {% endif %}
+                                    {% if kmodet_scb.idrwsp %}
+                                    <td>{{ kmodet_scb.idrwsp }}</td>
+                                    {% else %}
+                                    <td>---</td>
+                                    {% endif %}
+                                    <td>{{kmodet_scb.idBs_RW_defect_tp}}</td>
+                                    <td>{{kmodet_scb.RW_size_def}}</td>
+                                    <td>20</td>
+                                    <td>{{kmodet_scb.date_elimination}}</td>
+                                    <td>{{kmodet_scb.idresponsible}}</td>
+                                  </tr>
+                                {% endfor %}
+                              {% else %}
+                                  <tr>
+                                    <th scope="row">0</th>
+                                    <td colspan="9">Неисправности/замечания отсутствуют...</td>
+                                  </tr>
+                              {% endif %}
+                            </tbody>
+                          </table>
+                      </div>
+<!--                      <div class="tab-pane fade" id="nav-contact1" role="tabpanel" aria-labelledby="nav-contact-tab"></div>-->
                     </div>
             </div>
         </div>

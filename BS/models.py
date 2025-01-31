@@ -224,7 +224,11 @@ class Bs_RW_defect_tp(models.Model):
     not_used = models.BooleanField('Недействующий', default=False, null=True, blank=True)
 
     def __str__(self):
-        return self.s_name
+        return (str(self.s_name) +
+                ' [ ' + str(self.s_deviation_interval) +
+                ' | ' + str(self.d_deadline) +
+                ' | ' + str(self.s_measurement) +
+                ' | ' + str(self.n_speed_limit) + ']')
 
     class Meta:
         verbose_name = 'Вид Неисправности или отклонения'
