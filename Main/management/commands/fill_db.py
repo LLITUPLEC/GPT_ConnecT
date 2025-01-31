@@ -184,12 +184,12 @@ class Command(BaseCommand):
 
         count = 1
         for idx_data_sp in get_data.index:
-            print(count, ' : ',
-                  get_data['Неисправности или отклонения  от норм содержания (виды)'][idx_data_sp], ' => ',
-                  get_data['Интервал отклонения'][idx_data_sp], get_data['Интервал отклонения2'][idx_data_sp],
-                  get_data['Крайний срок (в днях)'][idx_data_sp], get_data['Единица измерения'][idx_data_sp],
-                  get_data['Ограничение скорости'][idx_data_sp]
-                  )
+            # print(count, ' : ',
+            #       get_data['Неисправности или отклонения  от норм содержания (виды)'][idx_data_sp], ' => ',
+            #       get_data['Интервал отклонения'][idx_data_sp], get_data['Интервал отклонения2'][idx_data_sp],
+            #       get_data['Крайний срок (в днях)'][idx_data_sp], get_data['Единица измерения'][idx_data_sp],
+            #       get_data['Ограничение скорости'][idx_data_sp]
+            #       )
 
             count += 1
             try:
