@@ -10,7 +10,7 @@ from KMO.forms import Kmo_membersFormSet, KMOForm_edit, KMO_check_create, KMOdet
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, FileResponse, JsonResponse
 from django.contrib import messages
-from django.urls import reverse_lazy
+from qrgenerator.forms import QR_create
 
 import io
 from reportlab.pdfgen import canvas
@@ -21,6 +21,8 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from Main.models import Profile
 from qrcode import make as make_qr
+
+from qrgenerator.models import Bar_code
 
 pdfmetrics.registerFont(TTFont('DejaVuSerif', 'static/DejaVuSerif.ttf', 'UTF-8'))
 
@@ -232,12 +234,13 @@ def view_kmo(request, kmo_id):
 @login_required()
 def approv_kmo(request, kmo_id):
     kmo = get_object_or_404(Kmo, id=kmo_id)
-    if request.user == kmo.idprofile.user:
+    if kmo.idprofile and request.user == kmo.idprofile.user:
         kmo.approved = 1
         kmo.save()
         return redirect(f'/view_kmo/{kmo_id}')
     else:
-        messages.info(request, 'Утверждение невозможно! Только председатель данного КМО имеет на это право')
+        dop_msg = '! А он даже не указан' if not kmo.idprofile else ''
+        messages.info(request, 'Утверждение невозможно! Только председатель данного КМО имеет на это право' + dop_msg)
         return HttpResponseRedirect(f'/edit_kmo/{kmo_id}')
 
 
@@ -389,15 +392,22 @@ def done_kmo_det(request, kmodet_id):
 
 
 def index_qr(request):
-    qr_image = False
-    if request.method == "POST":
-        data = request.POST['data']
-        # data = f'https://gpt-connect.ru/view_kmodet_by_qr/{'stp'}/{3}'
-        img = make_qr(data)
-        img.save("media/qr/test.png")
-        qr_image = True
 
-    return render(request, 'qrgenerator/index.html', {'qr_image': qr_image})
+    if request.method == "POST":
+        QR_create_form = QR_create(request.POST)
+        QR_create_form.instance.type_object = request.POST['type_object']
+        if QR_create_form.is_valid():
+            QR_create_form.instance.s_create_user = request.user.username
+            QR_create_form.save()
+            # return render(request, 'qrgenerator/index.html')
+        else:
+            error = 'Форма ошибочна \n' + str(QR_create_form.errors)
+    else:
+        # print('QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ')
+        qr_code = Bar_code()
+        QR_create_form = QR_create(instance=qr_code)
+
+    return render(request, 'qrgenerator/index.html', {'qr_form': QR_create_form, 'qwe': 'qqqq'})
 
 
 @login_required()

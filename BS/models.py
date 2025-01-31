@@ -141,6 +141,7 @@ class Bs_RWsp(models.Model):
     created_at = models.DateTimeField('Дата создания', auto_now_add=True, editable=False)
     s_update_user = models.CharField('Изменивший', max_length=25, null=True, blank=True)
     updated_at = models.DateTimeField('Дата изменения', auto_now=True, editable=False)
+    # idbarcode =
     not_used = models.BooleanField('Недействующий', default=False)
 
     def __str__(self):

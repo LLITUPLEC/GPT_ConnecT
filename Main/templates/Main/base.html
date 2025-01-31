@@ -50,6 +50,16 @@
 
             max-width: 340px;
         }
+        #btn-profile {
+            width: 93px;
+        }
+        #btn-profile::before {
+          content: "Профиль";
+        }
+
+        #btn-profile:hover::before {
+          content: "{{request.user}}";
+        }
     </style>
 
   </head>
@@ -93,7 +103,7 @@
 <!--          <button type="button" class="btn btn-outline-light me-2">Войти</button>-->
 <!--          <button type="button" class="btn btn-warning">Регистрация</button>-->
             {% if user.is_authenticated %}
-            	<a class="btn btn-outline-light me-2" href="{% url 'profile' %}">Профиль</a>
+            	<a id="btn-profile" class="btn btn-outline-light me-2" href="{% url 'profile' %}"></a>
                 <form action="{% url 'logout' %}" method="post">
                     {% csrf_token %}
                     <button class="btn btn-warning" type="submit">Выйти</button>
@@ -145,69 +155,6 @@
             totalForms.setAttribute('value', `${formNum+1}`)
         }
     </script>
-    <script>
-        let idrwstation = document.querySelector('#id_idrwstation');
-        let idrwstage = document.querySelector('#id_idrwstage');
-        let idrwway = document.querySelector('#id_idrwway');
-        let idrwsp = document.querySelector('#id_idrwsp');
-        let idrwkilometr = document.querySelector('#id_idrwkilometr');
-        let RW_picket = document.querySelector('#id_RW_picket');
-        let RW_unit = document.querySelector('#id_RW_unit');
 
-        if (idrwstation.value != '') {
-                idrwstage.disabled = true;
-            }
-        if (idrwstage.value != '') {
-                idrwstation.disabled = true;
-            }
-        if (idrwway.value != '') {
-                idrwsp.disabled = true;
-            }
-        if (idrwsp.value != '') {
-                idrwway.disabled = true;
-                idrwkilometr.disabled = true;
-                RW_picket.disabled = true;
-                RW_unit.disabled = true;
-            }
-
-        idrwstation.addEventListener('change', () => {
-            idrwstage.disabled = true;
-            if (idrwstation.value == '') {
-                idrwstage.disabled = false;
-            }
-
-        });
-        idrwstage.addEventListener('change', () => {
-            idrwstation.disabled = true;
-            if (idrwstage.value == '') {
-                idrwstation.disabled = false;
-            }
-
-        });
-        idrwway.addEventListener('change', () => {
-            idrwsp.disabled = true;
-            if (idrwway.value == '') {
-                idrwsp.disabled = false;
-            }
-
-        });
-        idrwsp.addEventListener('change', () => {
-            idrwway.options[0].selected = true;
-            idrwway.disabled = true;
-            idrwkilometr.options[0].selected = true;
-            idrwkilometr.disabled = true;
-            RW_picket.options[0].selected = true;
-            RW_picket.disabled = true;
-            RW_unit.options[0].selected = true;
-            RW_unit.disabled = true;
-            if (idrwsp.value == '') {
-                idrwway.disabled = false;
-                idrwkilometr.disabled = false;
-                RW_picket.disabled = false;
-                RW_unit.disabled = false;
-            }
-
-        });
-    </script>
   </body>
 </html>

@@ -1,3 +1,5 @@
 from django.contrib import admin
+from .models import Bar_code
 
-# Register your models here.
+
+admin.site.register(Bar_code)

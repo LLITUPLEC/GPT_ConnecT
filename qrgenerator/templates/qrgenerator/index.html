@@ -1,25 +1,80 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Генератор QR кода</title>
-</head>
-<body>
+{% extends 'main/base.html'%}
+{% load static %}
+{% block title %}
+{{title_view}}
+{% endblock %}
+{% block content %}
+<div class="container" style="margin-bottom: 150px; margin-top: 20px;">
 <h1>Генератор QR кода</h1>
-<form method="post">
+<form method="post" style="width: 360px;">
     {% csrf_token %}
-    <h3>Введите адрес сайта</h3>
-    <input type="text" name="data">
-    <input type="submit" value="Получить QR код">
+    {{ qr_form.media.js }}
+    <table class="table table-borderless">
+                  <tbody>
+                    <tr>
+                      <td >Филиал</td>
+                          <td>{{ qr_form.iddepowner }}</td>
+                    </tr>
+                    <tr>
+                      <td >Станция</td>
+                          <td>{{ qr_form.station }}</td>
+                    </tr>
+                    <tr>
+                      <td >Объект</td>
+                          <td>{{ qr_form.type_object }}</td>
+                    </tr>
+
+                  <tr id="SP_qr">
+                      <td >Стрелочный перевод</td>
+                          <td>{{ qr_form.idrwsp }}</td>
+                    </tr>
+                  <tr id="WAY_qr">
+                      <td >Путь</td>
+                          <td>{{ qr_form.idrwway }}</td>
+                    </tr>
+                  </tbody>
+    </table>
+    <input type="submit" value="Сгенерировать QR код">
 </form>
-{% if qr_image %}
-    <h4>Ваш QR код:</h4>
-    <img src="{{qr_image}}">
-{% endif %}
-##
-{{ obj_row_last.id }}
-{{ obj_row_last.idkmo }}
-<a href="{{url_kmo}}"></a>
-##
-</body>
-</html>
+
+</div>
+<script>
+        let type_object = document.querySelector('#id_type_object');
+        let idrwsp = document.querySelector('#SP_qr');
+        let idrwway = document.querySelector('#WAY_qr');
+
+        if (type_object.value = '-') {
+            idrwsp.style.display = 'none';
+            idrwway.style.display = 'none';
+        }
+        type_object.addEventListener('change', () => {
+            if (type_object.value == '-') {
+                idrwsp.style.display = 'none';
+                idrwway.style.display = 'none';
+            }
+            if (type_object.value == 'SP') {
+                idrwsp.style.display = 'table-row';
+                idrwway.style.display = 'none';
+            }
+            if (type_object.value == 'WAY') {
+                idrwway.style.display = 'table-row';
+                idrwsp.style.display = 'none';
+            }
+
+        });
+
+    </script>
+{% endblock %}
+
+{% block li-kmo %}
+text-secondary
+{% endblock %}
+{% block li-home %}
+text-white
+{% endblock %}
+{% block li-bs %}
+text-white
+{% endblock %}
+{% block li-about %}
+text-white
+{% endblock %}
