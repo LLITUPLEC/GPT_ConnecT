@@ -4,9 +4,10 @@
 {{title_view}}
 {% endblock %}
 {% block content %}
-<div class="container" style="margin-bottom: 150px; margin-top: 20px;">
-<h1>Генератор QR кода</h1>
-<form method="post" style="width: 360px;">
+<div class="container" style="margin-bottom: 15px; margin-top: 20px;display: flex; justify-content: space-between; flex-wrap: wrap;">
+    <div>
+        <h1>Генератор QR кода</h1>
+    <form method="post" style="width: 360px;">
     {% csrf_token %}
     {{ qr_form.media.js }}
     <table class="table table-borderless">
@@ -34,30 +35,82 @@
                     </tr>
                   </tbody>
     </table>
-    <input type="submit" value="Сгенерировать QR код">
+    <input type="submit" class="btn btn-primary" value="Сгенерировать QR код">
 </form>
+    </div>
+    <div style="display: flex; flex-direction: column; align-items: center;">
+        {% if src_gen != '_Ж_' %}
+        <h5>Успешно! По станции <b>{{ station }}</b> на <b>{{ name_obj_h }}</b> № <b>{{ obj_s }}</b> сгенерирован <b>QR-код</b></h5>
+        <img src="/{{ src_gen }}" style="width: 250px;" alt="*">
+        {% endif %}
+    </div>
+
 
 </div>
+<div class="container table-responsive" style="margin-bottom: 150px;">
+
+      <table class="table table-bordered table-hover">
+        <thead class="table-primary">
+          <tr>
+            <th scope="col" style="width: 82px;">Тип объекта</th>
+            <th scope="col" style="width: 150px;">Филиал</th>
+            <th scope="col" style="width: 200px !important;">Станция</th>
+            <th scope="col" style="width: 120px;">№ об.</th>
+            <th scope="col" style="width: 150px;">QR</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if list_BC %}
+            {% for BC in list_BC %}
+              <tr style="width: 82px; vertical-align: middle; text-align: center;">
+                <th scope="row">
+                    {% if BC.type_object == 'stp' %}СтП {% else %} Путь {% endif %}
+                </th>
+                <td style="width: 150px;vertical-align: middle;">{{BC.iddepowner}}</td>
+                <td style="width: 200px !important; vertical-align: middle;">{{BC.station}}</td>
+                <td style="vertical-align: middle;">{% if BC.idrwsp %}{{ BC.idrwsp }} {% else %} {{ BC.idrwway }}{% endif %}</td>
+                <td style="vertical-align: middle;">
+                    <a href="/{{BC.src_bc}}" target="_blank" style="text-decoration: none;">
+                        <img style="width: 100px;" src="/{{BC.src_bc}}" alt="_Ж_">
+                    </a>
+
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+              <tr>
+                <th scope="row">0</th>
+                <td colspan="4">Список QR-кодов пуст!</td>
+              </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
 <script>
         let type_object = document.querySelector('#id_type_object');
         let idrwsp = document.querySelector('#SP_qr');
+        let input_idrwsp = document.querySelector('#id_idrwsp');
         let idrwway = document.querySelector('#WAY_qr');
-
-        if (type_object.value = '-') {
-            idrwsp.style.display = 'none';
-            idrwway.style.display = 'none';
-        }
+        let input_idrwway = document.querySelector('#id_idrwway');
+        idrwsp.style.display = 'none';
+        idrwway.style.display = 'none';
         type_object.addEventListener('change', () => {
-            if (type_object.value == '-') {
+            if (type_object.value == '') {
                 idrwsp.style.display = 'none';
                 idrwway.style.display = 'none';
             }
-            if (type_object.value == 'SP') {
+            if (type_object.value == 'stp') {
+                input_idrwway.removeAttribute("required");
+                input_idrwway.options[0].selected = true;
                 idrwsp.style.display = 'table-row';
+                input_idrwsp.setAttribute("required",true);
                 idrwway.style.display = 'none';
             }
-            if (type_object.value == 'WAY') {
+            if (type_object.value == 'way') {
+                input_idrwsp.removeAttribute("required");
+                input_idrwsp.options[0].selected = true;
                 idrwway.style.display = 'table-row';
+                input_idrwway.setAttribute("required",true);
                 idrwsp.style.display = 'none';
             }
 
@@ -67,7 +120,8 @@
 {% endblock %}
 
 {% block li-kmo %}
-text-secondary
+<!--text-secondary-->
+text-white
 {% endblock %}
 {% block li-home %}
 text-white
@@ -77,4 +131,7 @@ text-white
 {% endblock %}
 {% block li-about %}
 text-white
+{% endblock %}
+{% block li-qr %}
+text-secondary
 {% endblock %}

@@ -7,11 +7,17 @@ from django.forms import (ModelForm, Select, ModelChoiceField, TextInput,
                           ChoiceField, modelformset_factory, forms, CheckboxInput, Textarea, ImageField, CharField)
 
 typeObj_CHOICES = (
-    ('-', '---------'),
-    ('SP', 'Стрелочный перевод'),
-    ('WAY', 'Путь'),
+    ('', '---------'),
+    ('stp', 'Стрелочный перевод'),
+    ('way', 'Путь'),
 )
 class QR_create(ModelForm):
+
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     self.fields['idrwsp'].queryset = Bs_RWsp.objects.filter(pk=1)
+    #
+
     class Meta:
         model = Bar_code
         fields = ["type_object",
@@ -23,7 +29,7 @@ class QR_create(ModelForm):
                   ]
 
     type_object = ChoiceField(choices=typeObj_CHOICES,
-                          widget=Select(attrs={'class': 'form-control', 'placeholder': 'Выберите объект'}))
+                          widget=Select(attrs={'class': 'form-control', 'placeholder': 'Выберите объект', 'required': 'required'}))
 
     iddepowner = ModelChoiceField(queryset=Bs_depowner.objects.all(),
                                   widget=Select(attrs={'class': 'form-select', 'placeholder': 'выберите филиал'}))
@@ -33,11 +39,13 @@ class QR_create(ModelForm):
                                 auto_choose=True,
                                 sort=True, null=True, blank=True)
     idrwsp = ChainedForeignKey(
-        Bs_RWsp, chained_field="station",
+        Bs_RWsp,
+        chained_field="station",
         chained_model_field="idrwstation",
         show_all=False,
         auto_choose=True,
-        sort=True, null=True, blank=True)
+        sort=True, null=True, blank=True
+    )
     idrwway = ChainedForeignKey(
         Bs_RWway,
         chained_field="station",

@@ -132,8 +132,8 @@
                                     </th>
                                     <td>{{kmodet_sp.date_detection}}</td>
                                     <td>{{kmodet_sp.idrwstation}}</td>
-                                    <td>{{kmodet_sp.idrwway}}</td>
-                                    <td>{{kmodet_sp.idrwsp}}</td>
+                                    <td>{% if kmodet_sp.idrwway %}{{kmodet_sp.idrwway}}{% else %}---{%endif%}</td>
+                                    <td>{% if kmodet_sp.idrwsp %}{{kmodet_sp.idrwsp}}{% else %}---{%endif%}</td>
                                     <td>{{kmodet_sp.idBs_RW_defect_tp}}</td>
                                     <td>{{kmodet_sp.RW_size_def}}</td>
                                     <td>20</td>
@@ -181,8 +181,8 @@
                                     </th>
                                     <td>{{kmodet_scb.date_detection}}</td>
                                     <td>{{kmodet_scb.idrwstation}}</td>
-                                    <td>{{kmodet_scb.idrwway}}</td>
-                                    <td>{{kmodet_scb.idrwsp}}</td>
+                                    <td>{% if kmodet_scb.idrwway %}{{kmodet_scb.idrwway}}{% else %}---{%endif%}</td>
+                                    <td>{% if kmodet_scb.idrwsp %}{{kmodet_scb.idrwsp}}{% else %}---{%endif%}</td>
                                     <td>{{kmodet_scb.idBs_RW_defect_tp}}</td>
                                     <td>{{kmodet_scb.RW_size_def}}</td>
                                     <td>15</td>

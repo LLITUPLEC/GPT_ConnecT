@@ -2,9 +2,10 @@
 from datetime import datetime
 from pprint import pprint
 
+import qrcode
 from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
-from BS.models import Bs_depowner, Bs_department, Bs_RWway
+from BS.models import Bs_depowner, Bs_department, Bs_RWway, Bs_RWsp
 from KMO.models import Kmo, Kmo_members, Kmodet, Kmo_responsible
 from KMO.forms import Kmo_membersFormSet, KMOForm_edit, KMO_check_create, KMOdetForm_edit, KMOdetForm_create
 from django.contrib.auth.decorators import login_required
@@ -392,41 +393,96 @@ def done_kmo_det(request, kmodet_id):
 
 
 def index_qr(request):
-
+    src_path = '_Ж_'
+    s_name_obj = '_Ж_'
+    station = '_Ж_'
+    type_object = '_Ж_'
+    name_obj_h = '_Ж_'
     if request.method == "POST":
+        dir_qr = 'none'
         QR_create_form = QR_create(request.POST)
         QR_create_form.instance.type_object = request.POST['type_object']
         if QR_create_form.is_valid():
             QR_create_form.instance.s_create_user = request.user.username
-            QR_create_form.save()
-            # return render(request, 'qrgenerator/index.html')
-        else:
-            error = 'Форма ошибочна \n' + str(QR_create_form.errors)
-    else:
-        # print('QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ')
-        qr_code = Bar_code()
-        QR_create_form = QR_create(instance=qr_code)
+            type_object = QR_create_form.instance.type_object
+            dep = QR_create_form.instance.iddepowner
+            station = QR_create_form.instance.station
+            if type_object == 'stp':
+                id_obj = request.POST['idrwsp']
+                s_name_obj = Bs_RWsp.objects.get(pk=request.POST['idrwsp']).s_name
+                dir_qr = 'стрелочные переводы'
 
-    return render(request, 'qrgenerator/index.html', {'qr_form': QR_create_form, 'qwe': 'qqqq'})
+            elif type_object == 'way':
+                id_obj = request.POST['idrwway']
+                s_name_obj = Bs_RWway.objects.get(pk=request.POST['idrwway']).s_name
+                dir_qr = 'пути'
+            else:
+                id_obj = -1
+            src_data = f'https://gpt-connect.ru/view_kmodet_by_qr/{type_object}/{id_obj}'
+            print('src_data => ', src_data)
+            img = qrcode.make(src_data)
+            src_path = (f"media/qr/{dir_qr}/{dep}/{station}/qr_{type_object}_"
+                        f"{str(dep)[:3].upper()}_{str(station)[:3].upper()}_{s_name_obj}.png")
+            img.save(src_path)
+            QR_create_form.instance.src_bc = src_path
+            QR_create_form.save()
+            # return render(request, 'qrgenerator/index.html', {'src_gen': src_path})
+        else:
+            print('EEEEEEEEEERRRRRRRRRRRRRRRRRRRRRRRRROOOOOOOOOOOOOOOOORRR 22222222222222222')
+            error = 'Форма ошибочна \n' + str(QR_create_form.errors)
+            messages.info(request, 'На данный объект уже есть QR-код')
+            return HttpResponseRedirect('/qr')
+    # else:
+        # print('QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ')
+    qr_code = Bar_code()
+    QR_create_form = QR_create(instance=qr_code)
+    list_BC = Bar_code.objects.all()
+    if type_object == 'stp':
+        name_obj_h = 'стрелочный перевод'
+    elif type_object == 'way':
+        name_obj_h = 'путь'
+
+    return render(request, 'qrgenerator/index.html', {'qr_form': QR_create_form,
+                                                      'src_gen': src_path,
+                                                      'station': station,
+                                                      'obj_s': s_name_obj,
+                                                      'name_obj_h': name_obj_h,
+                                                      'list_BC': list_BC}
+                  )
 
 
 @login_required()
 def view_kmodet_by_qr(request, type_obj, id_obj):
     if type_obj == 'stp':
+        stp_obj = Bs_RWsp.objects.get(pk=id_obj)
         obj_rows = Kmodet.objects.filter(idrwsp=id_obj).order_by('date_detection').reverse()  # Если стрелочные переводы
+        obj_rows_overdue = Kmodet.objects.filter(idrwsp=id_obj, eliminated=0)  # Если стрелочные переводы
         obj_row_last = Kmodet.objects.filter(idrwsp=id_obj).last()  # Если стрелочные переводы(последняя запись)
-        name_obj = f'Стрелочный Перевод №{obj_row_last.idrwsp.s_name} ст.{obj_row_last.idrwsp.idrwstation.s_name}'
+        name_obj = (f'Стрелочный Перевод №{stp_obj.s_name} на ст.{stp_obj.idrwstation} (филиал {stp_obj.idrwstation.iddepowner})')
+        name_obj_add =  (f'Способ управления: {stp_obj.manag_method} | Тип рельсов: {stp_obj.type_rail}\nМарка крестовины: {stp_obj.mark_crossp} | Вид перевода: {stp_obj.view_conversion}')
     elif type_obj == 'way':
+        stp_obj = Bs_RWway.objects.get(pk=id_obj)
         obj_rows = Kmodet.objects.filter(idrwway=id_obj)  # Если жд пути
+        obj_rows_overdue = Kmodet.objects.filter(idrwway=id_obj, eliminated=0)  # Если стрелочные переводы
         obj_row_last = Kmodet.objects.filter(idrwway=id_obj).last()  # Если стрелочные переводы(последняя запись)
+        name_obj = (
+            f'ЖД путь №{stp_obj.s_name} на ст.{stp_obj.idrwstation} (филиал {stp_obj.idrwstation.iddepowner})')
+        name_obj_add = (
+            f'')
     else:
         obj_row_last = 'None 1'
         obj_rows = 'None 2'
-
+    if obj_row_last:
+        id_url = obj_row_last.idkmo.pk
+    else:
+        id_url = 0
     return render(request, 'KMO/KMO_det/view_kmodet_by_qr.html', {'obj_row_last': obj_row_last,
                                                                   'obj_rows': obj_rows,
-                                                                  'url_kmo': f'/view_kmo/{obj_row_last.idkmo.pk}',
-                                                                  'name_obj': name_obj}
+                                                                  'url_kmo': f'/view_kmo/{id_url}',
+                                                                  'name_obj': name_obj,
+                                                                  'name_obj_add': name_obj_add,
+                                                                  'obj_rows_overdue': obj_rows_overdue
+                                                                  }
                   )
 
 

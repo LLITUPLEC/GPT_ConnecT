@@ -9,7 +9,7 @@ from BS.models import Bs_RWStation, Bs_depowner, Bs_RWsp, Bs_RWway
 
 class Bar_code(models.Model):
     type_object = models.CharField('Тип объекта', max_length=8)
-    src_bc = models.CharField('QR-код', max_length=18, null=True, blank=True)
+    src_bc = models.CharField('QR-код', max_length=27, null=True, blank=True)
     iddepowner = models.ForeignKey(Bs_depowner, on_delete=models.CASCADE, verbose_name='Филиал', default=None)
     station = ChainedForeignKey(Bs_RWStation, chained_field="iddepowner",
                                 chained_model_field="iddepowner",
@@ -21,14 +21,14 @@ class Bar_code(models.Model):
         chained_model_field="idrwstation",
         show_all=False,
         auto_choose=True,
-        sort=True, null=True, blank=True)
+        sort=True, null=True, blank=True, unique=True)
     idrwway = ChainedForeignKey(
         Bs_RWway,
         chained_field="station",
         chained_model_field="idrwstation",
         show_all=False,
         auto_choose=True,
-        sort=True, null=True, blank=True)
+        sort=True, null=True, blank=True, unique=True)
     # station = models.ForeignKey(Bs_RWStation, on_delete=models.PROTECT, verbose_name='Станция', null=True, blank=True)
     s_create_user = models.CharField('Создатель', max_length=25)
     created_at = models.DateTimeField('Дата создания', auto_now_add=True, editable=False)
