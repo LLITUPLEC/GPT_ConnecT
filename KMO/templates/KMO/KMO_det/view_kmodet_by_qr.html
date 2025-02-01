@@ -5,11 +5,14 @@
 {% endblock %}
 {% block content %}
 <div class="container" style="margin-bottom: 150px; margin-top: 20px;">
-    <h2>Список всех зарегистрированных неисправностей по объекту <b>[{{name_obj}}]</b></h2>
-    <h4>Всего: <b>{{42}}</b></h4>
-    <h4>Неустранённых: <b>{{32}}</b></h4>
+    <h2>Список всех зарегистрированных неисправностей по объекту <br><b>[{{name_obj}}]</b></h2>
+    <h5>[{{name_obj_add}}]</h5>
+    <h4>Всего: <b>{{obj_rows.count}}</b></h4>
+    <h4>Неустранённых: <b>{{obj_rows_overdue.count}}</b></h4>
+    {% if obj_row_last %}
+        <h5>В последний раз был добавлен в КМО => [{{obj_row_last.idkmo}}] <a style="font-size: 10px;" href="{{url_kmo}}">Открыть КМО</a></h5>
+    {% endif %}
 
-    <h5>В последний раз был добавлен в КМО => [{{obj_row_last.idkmo}}] <a style="font-size: 10px;" href="{{url_kmo}}">Открыть КМО</a></h5>
     <div class="table-responsive">
         <table class="table table-striped table-bordered table-hover">
         <thead class="table-primary">
