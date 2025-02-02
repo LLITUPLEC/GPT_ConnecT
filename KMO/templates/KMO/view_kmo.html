@@ -209,7 +209,7 @@
         {% elif  kmo_data.approved == 1 %}
             <a class="btn btn-info" href="{% url 'kmo_pdf' id_kmo_edit %}">Сформировать акт в PDF</a>
         {% endif %}
-
+        <a class="btn btn-info" href="{% url 'export_kmodet_xls' id_kmo_edit %}">Сформировать акт в EXCEL</a>
     </div>
 
 </div>

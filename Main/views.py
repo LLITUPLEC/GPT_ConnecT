@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
+import os
 from datetime import datetime
 from pprint import pprint
 
 import qrcode
+import xlwt
 from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
+from django.core.paginator import Paginator
 from BS.models import Bs_depowner, Bs_department, Bs_RWway, Bs_RWsp
 from KMO.models import Kmo, Kmo_members, Kmodet, Kmo_responsible
 from KMO.forms import Kmo_membersFormSet, KMOForm_edit, KMO_check_create, KMOdetForm_edit, KMOdetForm_create
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect, FileResponse, JsonResponse
+from django.http import HttpResponseRedirect, FileResponse, HttpResponse
 from django.contrib import messages
 from qrgenerator.forms import QR_create
 
@@ -419,14 +422,20 @@ def index_qr(request):
             else:
                 id_obj = -1
             src_data = f'https://gpt-connect.ru/view_kmodet_by_qr/{type_object}/{id_obj}'
-            print('src_data => ', src_data)
-            img = qrcode.make(src_data)
-            src_path = (f"media/qr/{dir_qr}/{dep}/{station}/qr_{type_object}_"
-                        f"{str(dep)[:3].upper()}_{str(station)[:3].upper()}_{s_name_obj}.png")
-            img.save(src_path)
-            QR_create_form.instance.src_bc = src_path
-            QR_create_form.save()
-            # return render(request, 'qrgenerator/index.html', {'src_gen': src_path})
+            # print('src_data => ', src_data)
+            if os.path.isdir(f"media/qr/{dir_qr}/{dep}/{station}"):
+                print("Directory exists")
+                img = qrcode.make(src_data)
+                src_path = (f"media/qr/{dir_qr}/{dep}/{station}/qr_{type_object}_"
+                            f"{str(dep)[:3].upper()}_{str(station)[:3].upper()}_{s_name_obj}.png")
+                img.save(src_path)
+                QR_create_form.instance.src_bc = src_path
+                QR_create_form.save()
+            else:
+                print("Directory does not exist")
+                messages.info(request, 'Не настроены папки по станциям филиала(media/../..)')
+                return HttpResponseRedirect('/qr')
+
         else:
             print('EEEEEEEEEERRRRRRRRRRRRRRRRRRRRRRRRROOOOOOOOOOOOOOOOORRR 22222222222222222')
             error = 'Форма ошибочна \n' + str(QR_create_form.errors)
@@ -437,6 +446,9 @@ def index_qr(request):
     qr_code = Bar_code()
     QR_create_form = QR_create(instance=qr_code)
     list_BC = Bar_code.objects.all()
+    paginator = Paginator(list_BC, 5)  # Show 25 contacts per page.
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
     if type_object == 'stp':
         name_obj_h = 'стрелочный перевод'
     elif type_object == 'way':
@@ -447,7 +459,9 @@ def index_qr(request):
                                                       'station': station,
                                                       'obj_s': s_name_obj,
                                                       'name_obj_h': name_obj_h,
-                                                      'list_BC': list_BC}
+                                                      'list_BC': page_obj,
+                                                      'page_obj': page_obj,
+                                                      }
                   )
 
 
@@ -485,4 +499,57 @@ def view_kmodet_by_qr(request, type_obj, id_obj):
                                                                   }
                   )
 
+
+@login_required()
+def export_kmodet_xls(request, kmo_id):
+    kmo = get_object_or_404(Kmo, id=kmo_id)
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="#' + str(kmo.n_regnumber) + '.xls"'
+
+    wb = xlwt.Workbook(encoding='utf-8')
+    ws = wb.add_sheet('kmo_det')
+
+    # Sheet header, first row
+    row_num = 0
+
+    font_style = xlwt.XFStyle()
+    font_style.font.bold = True
+
+    columns = ['№ п/п', 'Филиал', 'Дата проведения', 'Станция', '№ Пути', '№ стрелочного перевода',
+               'Неисправность', 'Величина', 'Ограничение скорости', 'Дата устранения', 'Ответственный', ]
+
+    for col_num in range(len(columns)):
+        ws.write(row_num, col_num, columns[col_num], font_style)
+    ws.col(1).width = 3000
+    ws.col(2).width = 5000
+    ws.col(3).width = 3000
+    ws.col(6).width = 8000
+    ws.col(9).width = 5000
+    ws.col(10).width = 5000
+    # Sheet body, remaining rows
+    font_style = xlwt.XFStyle()
+
+    rows = Kmodet.objects.filter(idkmo=kmo_id).values_list('iddepowner__s_name', 'date_detection',
+                                                           'idrwstation__s_name', 'idrwway__s_name', 'idrwsp__s_name',
+                                                           'idBs_RW_defect_tp__s_name', 'RW_size_def',
+                                                           'idBs_RW_defect_tp__n_speed_limit', 'date_elimination',
+                                                           'idresponsible__idprofile__last_name'
+                                                           ).order_by('idrwstation')
+    for row in rows:
+
+        row_num += 1
+        for col_num in range(len(row)):
+            # print(row)
+            if col_num == 0:
+                ws.write(row_num, col_num, row_num, font_style)
+                ws.write(row_num, col_num+1, row[col_num], font_style)
+            else:
+                if col_num in [1, 8]:
+                    font_style.num_format_str = 'dd.mm.yyyy'
+                    ws.write(row_num, col_num+1, row[col_num], font_style)
+                    font_style = xlwt.XFStyle()
+                else:
+                    ws.write(row_num, col_num + 1, row[col_num], font_style)
+    wb.save(response)
+    return response
 

@@ -2,3 +2,4 @@ pip install django-crispy-forms
 pip install crispy_bootstrap4
 pip install qrcode
 pip install pillow
+pip install xlwt

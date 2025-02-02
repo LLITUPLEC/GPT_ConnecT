@@ -48,8 +48,7 @@
 
 </div>
 <div class="container table-responsive" style="margin-bottom: 150px;">
-
-      <table class="table table-bordered table-hover">
+    <table class="table table-bordered table-hover">
         <thead class="table-primary">
           <tr>
             <th scope="col" style="width: 82px;">Тип объекта</th>
@@ -85,7 +84,26 @@
           {% endif %}
         </tbody>
       </table>
+
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; В начало</a>
+                <a href="?page={{ page_obj.previous_page_number }}">Предыдущая</a>
+            {% endif %}
+
+            <span class="current">
+                Стр. {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}.
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">Следующая</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">Последняя &raquo;</a>
+            {% endif %}
+        </span>
     </div>
+</div>
+
 <script>
         let type_object = document.querySelector('#id_type_object');
         let idrwsp = document.querySelector('#SP_qr');
