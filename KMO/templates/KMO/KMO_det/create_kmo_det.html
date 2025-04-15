@@ -106,7 +106,25 @@
                     </tr>
                     <tr>
                       <td scope="row">Неисправность</td>
-                      <td>{{ form_create_kmodet.idBs_RW_defect_tp }}</td>
+                      <td>
+                        <div class="input-group">
+                          {{ form_create_kmodet.idBs_RW_defect_tp }}
+                          <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="button" id="defectSearchBtn">
+                              <i class="fas fa-search"></i>
+                                <img src="/static/icons/search.svg" style="width: 16px">
+                            </button>
+                          </div>
+                        </div>
+                        <div class="autocomplete-container">
+                          <input type="text" class="form-control" id="defectSearchInput" placeholder="Поиск неисправности...">
+                          <div id="defectSearchResults" class="autocomplete-results"></div>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td scope="row">Величина неисправности</td>
+                      <td>{{ form_create_kmodet.RW_size_def }}</td>
                     </tr>
                     <tr>
                       <td scope="row">Срок устранения</td>
@@ -117,10 +135,7 @@
                       <td>{{ form_create_kmodet.date_elimination_edit }}</td>
                     </tr>
 
-                  <tr>
-                      <td scope="row">Величина неисправности</td>
-                      <td>{{ form_create_kmodet.RW_size_def }}</td>
-                    </tr>
+
 <!--                  <tr>-->
 <!--                      <td scope="row">Устранено</td>-->
 <!--                      <td>{{ form_create_kmodet.eliminated }}</td>-->
@@ -215,7 +230,155 @@
             }
 
         });
+
+        // Add defect search functionality
+        const defectSearchInput = document.getElementById('defectSearchInput');
+        const defectSearchResults = document.getElementById('defectSearchResults');
+        const defectTypeSelect = document.getElementById('id_idBs_RW_defect_tp');
+        const defectGroupSelect = document.getElementById('id_idBs_RW_defect_gr');
+        const elementSelect = document.getElementById('id_idBs_RW_element');
+        const objInspSelect = document.getElementById('id_idBs_Obj_insp');
+        const defectSearchBtn = document.getElementById('defectSearchBtn');
+        const idBs_RW_defect_tp = document.getElementById('id_idBs_RW_defect_tp');
+        const iddepartment = document.querySelector('input[name="iddepartment"]').value;
+
+
+
+        defectSearchInput.addEventListener('input', async (e) => {
+            const searchTerm = e.target.value;
+            //console.log('Search term:', searchTerm);  // Debug log
+            if (searchTerm.length < 2) {
+                defectSearchResults.innerHTML = '';
+                return;
+            }
+
+            fetch(`/api/defect-types/search/?q=${searchTerm}&id_iddepartment=${iddepartment}`)
+                .then(response => response.json())
+                .then(data => {
+                    defectSearchResults.innerHTML = '';
+                    data.forEach(defect => {
+                        const div = document.createElement('div');
+                        div.textContent = defect.name;
+
+                        div.onclick = () => {
+                        // console.log('Selected defect:', defect);  // Debug log
+
+                        // Set values in the correct order with debug logging
+                        // console.log('Setting obj_insp_id:', defect.obj_insp_id);
+                        objInspSelect.value = defect.obj_insp_id;
+                        let event = new Event('change', { bubbles: true });
+                        objInspSelect.dispatchEvent(event);
+
+                        setTimeout(() => {
+                            // console.log('Setting element_id:', defect.element_id);
+                            elementSelect.value = defect.element_id;
+                            let event = new Event('change', { bubbles: true });
+                            elementSelect.dispatchEvent(event);
+
+                            setTimeout(() => {
+                                // console.log('Setting defect_group_id:', defect.defect_group_id);
+                                defectGroupSelect.value = defect.defect_group_id;
+                                let event = new Event('change', { bubbles: true });
+                                defectGroupSelect.dispatchEvent(event);
+
+                                setTimeout(() => {
+                                    // console.log('Setting defect_id:', defect.id);
+                                    // Set defect type value and trigger change event
+                                    defectTypeSelect.value = defect.id;
+                                    let event = new Event('change', { bubbles: true });
+                                    defectTypeSelect.dispatchEvent(event);
+
+                                    // Force update the select element
+                                    defectTypeSelect.selectedIndex = Array.from(defectTypeSelect.options).findIndex(option => option.value == defect.id);
+
+                                    // Debug: Log current values after setting
+                                    setTimeout(() => {
+                                        // console.log('Final values:');
+                                        // console.log('obj_insp_id:', objInspSelect.value);
+                                        // console.log('element_id:', elementSelect.value);
+                                        // console.log('defect_group_id:', defectGroupSelect.value);
+                                        // console.log('defect_id:', defectTypeSelect.value);
+                                        // console.log('defect_id selectedIndex:', defectTypeSelect.selectedIndex);
+
+                                        // Clear search input and results only after all values are set
+                                        defectSearchInput.value = '';
+                                        defectSearchResults.innerHTML = '';
+                                    }, 500); // Increased delay before clearing
+                                }, 500); // Increased delay between steps
+                            }, 500);
+                        }, 500);
+                    };
+
+
+                        div.addEventListener('click', () => {
+                            idBs_RW_defect_tp.value = defect.id;
+                            defectSearchInput.value = defect.name;
+                            defectSearchResults.innerHTML = '';
+                        });
+                        defectSearchResults.appendChild(div);
+                    });
+                });
+        });
+
+        defectSearchBtn.addEventListener('click', function() {
+            const searchTerm = defectSearchInput.value.toLowerCase();
+            if (searchTerm.length < 2) {
+                defectSearchResults.innerHTML = '';
+                return;
+            }
+
+            fetch(`/api/defect-types/search/?q=${searchTerm}&id_iddepartment=${iddepartment}`)
+                .then(response => response.json())
+                .then(data => {
+                    defectSearchResults.innerHTML = '';
+                    data.forEach(defect => {
+                        const div = document.createElement('div');
+                        div.textContent = defect.name;
+                        div.addEventListener('click', () => {
+                            idBs_RW_defect_tp.value = defect.id;
+                            defectSearchInput.value = defect.name;
+                            defectSearchResults.innerHTML = '';
+                        });
+                        defectSearchResults.appendChild(div);
+                    });
+                });
+        });
+
+        // Hide results when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.autocomplete-container')) {
+                defectSearchResults.innerHTML = '';
+            }
+        });
     </script>
+<style>
+    .autocomplete-container {
+        position: relative;
+    }
+    .autocomplete-results {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+    }
+    .autocomplete-results:not(:empty) {
+        display: block;
+    }
+    .autocomplete-item {
+        padding: 8px 12px;
+        cursor: pointer;
+    }
+    .autocomplete-item:hover {
+        background-color: #f8f9fa;
+    }
+</style>
 {% endblock %}
 
 {% block li-kmo %}

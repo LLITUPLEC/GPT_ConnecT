@@ -108,8 +108,8 @@
                                 <th scope="col">Опер-ии</th>
                                 <th scope="col">Дата проведения</th>
                                 <th scope="col">Станция</th>
-                                <th scope="col">№ Пути</th>
-                                <th scope="col">№ стр.перевода</th>
+                                <th scope="col">Устройство</th>
+                                <th scope="col">№ устройства</th>
                                 <th scope="col">Неисправность</th>
                                 <th scope="col">Величина</th>
                                 <th scope="col">Ограничение скорости</th>
@@ -120,7 +120,7 @@
                             <tbody>
                               {% if data_kmodet_sp %}
                                 {% for kmodet_sp in data_kmodet_sp %}
-                                  <tr class="table-{% if kmodet_sp.eliminated == 1 %}success{% elif kmodet_sp.eliminated == 0 and kmodet_sp.date_elimination < data_kmodet_all.datenow %}danger{% else %}light{% endif %}">
+                                  <tr class="table-{% if kmodet_sp.eliminated == 1 %}success{% elif kmodet_sp.idBs_RW_defect_tp.n_speed_limit == '0' %}danger kmodet_text_bold border-danger{% elif kmodet_sp.eliminated == 0 and kmodet_sp.date_elimination < data_kmodet_all.datenow %}danger{% else %}light{% endif %}">
                                     <th scope="row">
                                         <div class="btn-group">
                                             <a class="btn btn-sm btn-outline-secondary" href="{% url 'view_kmo_det' kmodet_sp.id %}"><img src="{% static 'icons/view_2.svg' %}" style="width: 16px"></a>
@@ -132,11 +132,11 @@
                                     </th>
                                     <td>{{kmodet_sp.date_detection}}</td>
                                     <td>{{kmodet_sp.idrwstation}}</td>
-                                    <td>{% if kmodet_sp.idrwway %}{{kmodet_sp.idrwway}}{% else %}---{%endif%}</td>
-                                    <td>{% if kmodet_sp.idrwsp %}{{kmodet_sp.idrwsp}}{% else %}---{%endif%}</td>
+                                    <td>{% if kmodet_sp.idrwway %}Путь{% else %}Стр.перевод{%endif%}</td>
+                                    <td>{% if kmodet_sp.idrwsp %}{{kmodet_sp.idrwsp}}{% else %}{{kmodet_sp.idrwway}}{%endif%}</td>
                                     <td>{{kmodet_sp.idBs_RW_defect_tp}}</td>
                                     <td>{{kmodet_sp.RW_size_def}}</td>
-                                    <td>20</td>
+                                    <td>{{kmodet_sp.idBs_RW_defect_tp.n_speed_limit}}</td>
                                     <td>{{kmodet_sp.date_elimination}}</td>
                                     <td>{{kmodet_sp.idresponsible}}</td>
                                   </tr>
@@ -157,8 +157,8 @@
                                 <th scope="col">Опер-ии</th>
                                 <th scope="col">Дата проведения</th>
                                 <th scope="col">Станция</th>
-                                <th scope="col">№ Пути</th>
-                                <th scope="col">№ стр.перевода</th>
+                                <th scope="col">Устройство</th>
+                                <th scope="col">№ устройства</th>
                                 <th scope="col">Неисправность</th>
                                 <th scope="col">Величина</th>
                                 <th scope="col">Ограничение скорости</th>
@@ -169,7 +169,7 @@
                             <tbody>
                               {% if data_kmodet_scb %}
                                 {% for kmodet_scb in data_kmodet_scb %}
-                                  <tr class="table-{% if kmodet_scb.eliminated == 1 %}success{% elif kmodet_scb.eliminated == 0 and kmodet_scb.date_elimination < data_kmodet_all.datenow %}danger{% else %}light{% endif %}">
+                                  <tr class="table-{% if kmodet_scb.eliminated == 1 %}success{% elif kmodet_scb.idBs_RW_defect_tp.n_speed_limit == '0' %}danger kmodet_text_bold border-danger{% elif kmodet_scb.eliminated == 0 and kmodet_scb.date_elimination < data_kmodet_all.datenow %}danger{% else %}light{% endif %}">
                                     <th scope="row">
                                         <div class="btn-group">
                                             <a class="btn btn-sm btn-outline-secondary" href="{% url 'view_kmo_det' kmodet_scb.id %}"><img src="{% static 'icons/view_2.svg' %}" style="width: 16px"></a>
@@ -181,11 +181,11 @@
                                     </th>
                                     <td>{{kmodet_scb.date_detection}}</td>
                                     <td>{{kmodet_scb.idrwstation}}</td>
-                                    <td>{% if kmodet_scb.idrwway %}{{kmodet_scb.idrwway}}{% else %}---{%endif%}</td>
-                                    <td>{% if kmodet_scb.idrwsp %}{{kmodet_scb.idrwsp}}{% else %}---{%endif%}</td>
+                                    <td>{% if kmodet_scb.idrwway %}Путь{% else %}Стр.перевод{%endif%}</td>
+                                    <td>{% if kmodet_scb.idrwsp %}{{kmodet_scb.idrwsp}}{% else %}{{kmodet_scb.idrwway}}{%endif%}</td>
                                     <td>{{kmodet_scb.idBs_RW_defect_tp}}</td>
                                     <td>{{kmodet_scb.RW_size_def}}</td>
-                                    <td>15</td>
+                                    <td>{{kmodet_scb.idBs_RW_defect_tp.n_speed_limit}}</td>
                                     <td>{{kmodet_scb.date_elimination}}</td>
                                     <td>{{kmodet_scb.idresponsible}}</td>
                                   </tr>
@@ -207,6 +207,7 @@
         {% if kmo_data.approved == 0 and kmo_data.idprofile %}
             <a class="btn btn-warning" href="{% url 'approv_kmo' id_kmo_edit %}">Утвердить</a>
         {% elif  kmo_data.approved == 1 %}
+            <a class="btn btn-warning" href="{% url 'approv_kmo' id_kmo_edit %}">Снять утверждение</a>
             <a class="btn btn-info" href="{% url 'kmo_pdf' id_kmo_edit %}">Сформировать акт в PDF</a>
         {% endif %}
         <a class="btn btn-info" href="{% url 'export_kmodet_xls' id_kmo_edit %}">Сформировать акт в EXCEL</a>

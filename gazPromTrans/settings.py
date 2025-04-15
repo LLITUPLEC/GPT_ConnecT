@@ -14,7 +14,7 @@ from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+print(BASE_DIR)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-$19dy8(^v5c50)xhmd!vn451&6^f7*15#w=+96j79fcp@02b5r
 # DEBUG = False
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['gpt-connect.ru', '*']
 
 CSRF_TRUSTED_ORIGINS = ['https://gpt-connect.ru', 'https://178.20.41.29']
 # Application definition
@@ -64,7 +64,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [],
-        # "DIRS": [BASE_DIR / "templates"],  # new
+         # "DIRS": [BASE_DIR / "templates"],  # new
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -72,6 +72,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'KMO.context_processors.get_kmodetlist'
             ],
         },
     },
@@ -86,11 +87,24 @@ WSGI_APPLICATION = 'gazPromTrans.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        # 'ENGINE': 'django.db.backends.sqlite3',
+        # 'NAME': BASE_DIR / 'db.sqlite3',
+
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'gazpromtrans',
+        'USER': 'postgres',
+        'PASSWORD': 'Kolyok213131z.',
+        'HOST': 'localhost',
+        'PORT': '5432',
+        'OPTIONS': {
+            'client_encoding': 'UTF8',
+        },
     }
 }
 
+# File encoding settings
+FILE_CHARSET = 'utf-8'
+DEFAULT_CHARSET = 'utf-8'
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -126,6 +140,9 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
+
+# STATIC_URL = '/static/'
+# STATIC_ROOT = "/root/transfer/Django/gazPromTrans/static/"
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [

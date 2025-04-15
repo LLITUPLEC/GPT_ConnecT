@@ -1,4 +1,6 @@
 {% extends "main/base.html" %}
+{% load static %}
+
 {% load crispy_forms_tags %}
 {% block content %}
 <div class="container" style="margin-bottom: 150px; margin-top: 20px;">
@@ -8,6 +10,85 @@
         <div class="media-body">
           <h2 class="account-heading">{{ user.username }}</h2>
           <p class="text-secondary">{{ user.email }}</p>
+<!--          {% regroup kmodet_list by idkmo as idkmo_list %}-->
+
+<!--            <ul>-->
+<!--                {% for kmo in idkmo_list %}-->
+<!--                    <li>{{ kmo.grouper }}-->
+<!--                        <ul>-->
+<!--                        {% for kmodet in kmo.list %}-->
+<!--                            <li>{{ kmodet.date_detection }}: {{ kmodet.population }}</li>-->
+<!--                        {% endfor %}-->
+<!--                        </ul>-->
+<!--                    </li>-->
+<!--                {% endfor %}-->
+<!--            </ul>-->
+
+          {% if kmodet_qty %}
+             <div class="tab-pane table-responsive"  role="tabpanel">
+                          <table class="table table-striped table-bordered table-hover">
+                            <thead class="table-primary">
+                              <tr>
+                                <th scope="col">Опер-ии</th>
+                                <th scope="col">Дата проведения</th>
+                                <th scope="col">Станция</th>
+                                <th scope="col">Устройство</th>
+                                <th scope="col">№ устройства</th>
+                                <th scope="col">Неисправность</th>
+                                <th scope="col">Величина</th>
+                                <th scope="col">Ограничение скорости</th>
+                                <th scope="col">Дата устранения</th>
+<!--                                <th scope="col">Ответственный</th>-->
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% if kmodet_list %}
+                                {% regroup kmodet_list by idkmo as idkmo_list %}
+                                {% for kmo in idkmo_list %}
+                              <tr><td colspan="9" class="name_kmo_master">{{ kmo.grouper }}</td></tr>
+                                  {% for kmodet_sp in kmo.list %}
+                                  <tr class="table-{% if kmodet_sp.eliminated == 1 %}success{% elif kmodet_sp.eliminated == 0 and kmodet_sp.date_elimination < datenow %}danger{% else %}light{% endif %}">
+                                    <th scope="row">
+                                        <div class="btn-group">
+                                            <a class="btn btn-sm btn-outline-secondary" href="{% url 'view_kmo_det' kmodet_sp.id %}"><img src="{% static 'icons/view_2.svg' %}" style="width: 16px"></a>
+                                            {% if kmodet_sp.eliminated == 0 and kmodet_sp.idkmo.approved %}
+                                            <a class="btn btn-sm btn-outline-secondary" href="{% url 'done_kmo_det' kmodet_sp.id  %}"><img src="{% static 'icons/done.svg' %}" style="width: 16px"></a>
+                                            {% endif %}
+                                        </div>
+
+                                    </th>
+                                    <td>{{kmodet_sp.date_detection}}</td>
+                                    <td>{{kmodet_sp.idrwstation}}</td>
+                                    <td>{% if kmodet_sp.idrwway %}Путь{% else %}Стр.перевод{%endif%}</td>
+                                    <td>{% if kmodet_sp.idrwsp %}{{kmodet_sp.idrwsp}}{% else %}{{kmodet_sp.idrwway}}{%endif%}</td>
+                                    <td>{{kmodet_sp.idBs_RW_defect_tp}}</td>
+                                    <td>{{kmodet_sp.RW_size_def}}</td>
+                                    <td>{{kmodet_sp.idBs_RW_defect_tp.n_speed_limit}}</td>
+                                    <td>{{kmodet_sp.date_elimination}}</td>
+<!--                                    <td>{{kmodet_sp.idresponsible}}</td>-->
+                                  </tr>
+                                {% endfor %}
+                              {% endfor %}
+                              {% else %}
+                                  <tr>
+                                    <th scope="row">0</th>
+                                    <td colspan="9">Неисправности/замечания отсутствуют...</td>
+                                  </tr>
+                              {% endif %}
+                            </tbody>
+                          </table>
+                      </div>
+          {% endif %}
+
+          {% if request.user.username == 'tminn' %}
+
+              <a href="/media/logging/log.txt" download >Скачать ЛОГ по действиям пользователей</a>
+              <br>
+              <a href="/media/logging/log_reg.txt" download >Скачать ЛОГ регистрации и перехода в ЛК</a>
+              <br>
+              
+            {% endif %}
+            
         </div>
       </div>
       <!-- Здесь будет форма -->

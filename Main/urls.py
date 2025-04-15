@@ -30,6 +30,6 @@ urlpatterns = [
     path('qr/', views.index_qr, name='qr-generator'),
     path('approv_kmo/<int:kmo_id>', views.approv_kmo, name='approv_kmo'),
     path('export_kmodet_xls/<int:kmo_id>', views.export_kmodet_xls, name='export_kmodet_xls'),
-
+    path('api/defect-types/search/', views.search_defect_types, name='search_defect_types'),
 ]
 

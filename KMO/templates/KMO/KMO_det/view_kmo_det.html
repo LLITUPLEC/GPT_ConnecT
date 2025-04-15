@@ -130,6 +130,10 @@
                       <td class="defect-bold">{{ view_kmodet.idBs_RW_defect_tp }}</td>
                     </tr>
                     <tr>
+                      <td scope="row">Величина неисправности</td>
+                      <td class="defect-bold">{{ view_kmodet.RW_size_def }}</td>
+                    </tr>
+                    <tr>
                       <td scope="row">Срок устранения</td>
                       <td>{{ view_kmodet.date_elimination }}</td>
                     </tr>
@@ -141,10 +145,7 @@
                         <td>---</td>
                         {% endif %}
                     </tr>
-                    <tr>
-                      <td scope="row">Величина неисправности</td>
-                      <td class="defect-bold">{{ view_kmodet.RW_size_def }}</td>
-                    </tr>
+                    
                   <tr>
                       <td scope="row">Устранено</td>
                       <td>{% if view_kmodet.eliminated %}ДА{% else %}НЕТ{% endif %}</td>
@@ -174,6 +175,9 @@
             </div>
         </div>
         <a class="btn btn-info" href="{% url 'view_kmo' header_KMO_data.id %}">Назад</a>
+        {% if view_kmodet.eliminated == 0 and view_kmodet.idkmo.approved %}
+        <a class="btn btn-success" href="{% url 'done_kmo_det' view_kmodet.id  %}">Устранить</a>
+        {% endif %}
 
 </div>
 {% endblock %}

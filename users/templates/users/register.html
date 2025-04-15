@@ -1,4 +1,5 @@
 {% extends "main/base.html" %}
+{% load static %} 
 {% load crispy_forms_tags %}
 {% block content %}
     <div class="container" style="margin-bottom: 150px; margin-top: 20px;">
@@ -8,7 +9,11 @@
                 <fieldset class="form-group">
                     <legend class="border-bottom mb-4">Добро пожаловать на портал ГПТ-КоннекТ</legend>
                     {{ form|crispy }}
+                  <label for="secret_key" class="requiredField">
+                Секретный код<span class="asteriskField">*</span> </label>
+                    <input type="text" name="secret_key" maxlength="10" autofocus="" class="textinput form-control" required="" id="secret_key" style="margin: 0 0 10px 0;">
                 </fieldset>
+
                 <div class="form-group">
                     <button class="btn btn-outline-info" type="submit">Регистрация</button>
                 </div>
