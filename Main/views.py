@@ -19,7 +19,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, FileResponse, HttpResponse, JsonResponse
 from django.contrib import messages
 from qrgenerator.forms import QR_create
-
+from django import forms
 import io
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
@@ -750,3 +750,143 @@ def search_defect_types(request):
         results.append(result)
     
     return JsonResponse(results, safe=False)
+
+
+
+@csrf_exempt
+def depowner_list(request):
+    if request.method == 'GET':
+        depowners = Bs_depowner.objects.all()
+        data = [{'id': dep.id, 'name': dep.s_name} for dep in depowners]
+        return JsonResponse(data, safe=False)
+
+@csrf_exempt
+def department_list(request):
+    if request.method == 'GET':
+        departments = Bs_department.objects.all()
+        data = [{'id': dep.id, 'name': dep.s_name} for dep in departments]
+        return JsonResponse(data, safe=False)
+
+@csrf_exempt
+def responsible_list(request):
+    if request.method == 'GET':
+        responsibles = Kmo_responsible.objects.all()
+        data = [{
+            'id': resp.id,
+            'depowner': resp.iddepowner.s_name if resp.iddepowner else '',
+            'department': resp.iddepartment.s_name if resp.iddepartment else '',
+            'profile': f"{resp.idprofile.get_fio()}" if resp.idprofile else ''
+        } for resp in responsibles]
+        return JsonResponse(data, safe=False)
+
+class DepownerForm(forms.ModelForm):
+    class Meta:
+        model = Bs_depowner
+        fields = ['s_name']
+        widgets = {
+            's_name': forms.TextInput(attrs={'class': 'form-control'})
+        }
+
+class DepartmentForm(forms.ModelForm):
+    class Meta:
+        model = Bs_department
+        # fields = ['s_name', 'iddepowner']
+        fields = ['s_name']
+        widgets = {
+            's_name': forms.TextInput(attrs={'class': 'form-control'}),
+            # 'iddepowner': forms.Select(attrs={'class': 'form-control'})
+        }
+
+class ResponsibleForm(forms.ModelForm):
+    class Meta:
+        model = Kmo_responsible
+        fields = ['iddepowner', 'iddepartment', 'idprofile']
+        widgets = {
+            'iddepowner': forms.Select(attrs={'class': 'form-control'}),
+            'iddepartment': forms.Select(attrs={'class': 'form-control'}),
+            'idprofile': forms.Select(attrs={'class': 'form-control'})
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['iddepowner'].queryset = Bs_depowner.objects.all()
+        self.fields['iddepartment'].queryset = Bs_department.objects.all()
+        self.fields['idprofile'].queryset = Profile.objects.all()
+
+@csrf_exempt
+def depowner_form(request):
+    if request.method == 'GET':
+        form = DepownerForm()
+        return render(request, 'BS/form.html', {'form': form, 'action': '/api/depowner/create/'})
+
+@csrf_exempt
+def department_form(request):
+    if request.method == 'GET':
+        form = DepartmentForm()
+        return render(request, 'BS/form.html', {'form': form, 'action': '/api/department/create/'})
+
+@csrf_exempt
+def responsible_form(request):
+    if request.method == 'GET':
+        form = ResponsibleForm()
+        return render(request, 'BS/form.html', {'form': form, 'action': '/api/responsible/create/'})
+
+@csrf_exempt
+def depowner_create(request):
+    if request.method == 'POST':
+        print("Received POST data:", request.POST)  # Debug print
+        form = DepownerForm(request.POST)
+        if form.is_valid():
+            depowner = form.save()
+            return JsonResponse({'id': depowner.id, 'name': depowner.s_name})
+        print("Form errors:", form.errors)  # Debug print
+        return JsonResponse({'error': form.errors}, status=400)
+
+@csrf_exempt
+def department_create(request):
+    if request.method == 'POST':
+        print("Received POST data:", request.POST)  # Debug print
+        form = DepartmentForm(request.POST)
+        if form.is_valid():
+            department = form.save()
+            return JsonResponse({'id': department.id, 'name': department.s_name})
+        print("Form errors:", form.errors)  # Debug print
+        return JsonResponse({'error': form.errors}, status=400)
+
+@csrf_exempt
+def responsible_create(request):
+    if request.method == 'POST':
+        print("Received POST data:", request.POST)  # Debug print
+        form = ResponsibleForm(request.POST)
+        if form.is_valid():
+            responsible = form.save()
+            return JsonResponse({
+                'id': responsible.id,
+                'depowner': responsible.iddepowner.s_name if responsible.iddepowner else '',
+                'department': responsible.iddepartment.s_name if responsible.iddepartment else '',
+                'profile': f"{responsible.idprofile.get_fio()}" if responsible.idprofile else ''
+            })
+        print("Form errors:", form.errors)  # Debug print
+        return JsonResponse({'error': form.errors}, status=400)
+
+@csrf_exempt
+def depowner_delete(request, id):
+    if request.method == 'DELETE':
+        depowner = get_object_or_404(Bs_depowner, id=id)
+        depowner.delete()
+        return JsonResponse({'status': 'success'})
+
+@csrf_exempt
+def department_delete(request, id):
+    if request.method == 'DELETE':
+        department = get_object_or_404(Bs_department, id=id)
+        department.delete()
+        return JsonResponse({'status': 'success'})
+
+@csrf_exempt
+def responsible_delete(request, id):
+    if request.method == 'DELETE':
+        responsible = get_object_or_404(Kmo_responsible, id=id)
+        responsible.delete()
+        return JsonResponse({'status': 'success'})
+

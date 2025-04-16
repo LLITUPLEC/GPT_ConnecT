@@ -31,5 +31,18 @@ urlpatterns = [
     path('approv_kmo/<int:kmo_id>', views.approv_kmo, name='approv_kmo'),
     path('export_kmodet_xls/<int:kmo_id>', views.export_kmodet_xls, name='export_kmodet_xls'),
     path('api/defect-types/search/', views.search_defect_types, name='search_defect_types'),
+
+    path('api/depowner/list/', views.depowner_list, name='depowner_list'),
+    path('api/department/list/', views.department_list, name='department_list'),
+    path('api/responsible/list/', views.responsible_list, name='responsible_list'),
+    path('api/depowner/form/', views.depowner_form, name='depowner_form'),
+    path('api/department/form/', views.department_form, name='department_form'),
+    path('api/responsible/form/', views.responsible_form, name='responsible_form'),
+    path('api/depowner/create/', views.depowner_create, name='depowner_create'),
+    path('api/department/create/', views.department_create, name='department_create'),
+    path('api/responsible/create/', views.responsible_create, name='responsible_create'),
+    path('api/depowner/delete/<int:id>/', views.depowner_delete, name='depowner_delete'),
+    path('api/department/delete/<int:id>/', views.department_delete, name='department_delete'),
+    path('api/responsible/delete/<int:id>/', views.responsible_delete, name='responsible_delete'),
 ]
 
